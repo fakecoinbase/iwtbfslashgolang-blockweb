@@ -19,6 +19,7 @@ type Block struct {
 	Timestamp    int64
 	Data         []byte
 	Hash         []byte
+	Nonce        int
 }
 
 func (block *Block) SetHash() {
@@ -29,9 +30,16 @@ func (block *Block) SetHash() {
 	block.Hash = hash[:]
 }
 
+// TODO: Validate block (e.g. verify ppk validity)
+
 // TODO: data [string] might not be applicable
 func NewBlock(data string, previousHash []byte) *Block {
-	block := &Block{previousHash, time.Now().Unix(), []byte(data), []byte{}}
-	block.SetHash()
+	block := &Block{previousHash, time.Now().Unix(), []byte(data), []byte{}, 0}
+	pow := NewProofOfWork(block)
+	nonce, hash := pow.Run()
+
+	block.Hash = hash[:]
+	block.Nonce = nonce
+
 	return block
 }
