@@ -1,6 +1,6 @@
 package pkg
 
-/**
+/*
  * Copyright 2019 Information Wants To Be Free
  * Visit: https://github.com/iwtbf
  *
@@ -9,6 +9,9 @@ package pkg
 
 import "strconv"
 
-func IntToHex(n int64) []byte {
-	return []byte(strconv.FormatInt(n, 16))
+/*
+ * Convert an int64 to its hexadecimal []byte representation.
+ */
+func IntToHex(int int64) []byte {
+	return []byte(strconv.FormatInt(int, 16))
 }

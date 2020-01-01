@@ -1,4 +1,4 @@
-package main
+package cmd
 
 /*
  * Copyright 2019 Information Wants To Be Free

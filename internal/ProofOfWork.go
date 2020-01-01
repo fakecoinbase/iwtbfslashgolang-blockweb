@@ -1,6 +1,6 @@
 package internal
 
-/**
+/*
  * Copyright 2019 Information Wants To Be Free
  * Visit: https://github.com/iwtbf
  *
@@ -8,9 +8,9 @@ package internal
  */
 
 import (
+	"../pkg"
 	"bytes"
 	"crypto/sha256"
-	"github.com/iwtbf/golang-blockweb/pkg"
 	"math"
 	"math/big"
 )
@@ -29,9 +29,9 @@ func (proofOfWork *ProofOfWork) prepareData(nonce int) []byte {
 		[][]byte{
 			proofOfWork.block.PreviousHash,
 			proofOfWork.block.Data,
-			IntToHex(proofOfWork.block.Timestamp),
-			IntToHex(int64(targetBits)),
-			IntToHex(int64(nonce)),
+			pkg.IntToHex(proofOfWork.block.Timestamp),
+			pkg.IntToHex(int64(targetBits)),
+			pkg.IntToHex(int64(nonce)),
 		},
 		[]byte{},
 	)

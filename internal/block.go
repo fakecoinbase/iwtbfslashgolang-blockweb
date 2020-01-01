@@ -1,6 +1,6 @@
 package internal
 
-/**
+/*
  * Copyright 2019 Information Wants To Be Free
  * Visit: https://github.com/iwtbf
  *
@@ -10,6 +10,7 @@ package internal
 import (
 	"bytes"
 	"crypto/sha256"
+	"encoding/gob"
 	"strconv"
 	"time"
 )
@@ -30,6 +31,17 @@ func (block *Block) SetHash() {
 	block.Hash = hash[:]
 }
 
+// TODO: Maybe use protocol buffers
+func (block *Block) Serialize() []byte {
+	var result bytes.Buffer
+	encoder := gob.NewEncoder(&result)
+
+	// TODO: Error handling
+	err := encoder.Encode(block)
+
+	return result.Bytes()
+}
+
 // TODO: Validate block (e.g. verify ppk validity)
 
 // TODO: data [string] might not be applicable
@@ -42,4 +54,14 @@ func NewBlock(data string, previousHash []byte) *Block {
 	block.Nonce = nonce
 
 	return block
+}
+
+func DeserializeBlock(data []byte) *Block {
+	var block Block
+
+	decoder := gob.NewDecoder(bytes.NewReader(data))
+	// TODO: Error handling
+	err := decoder.Decode(&block)
+
+	return &block
 }

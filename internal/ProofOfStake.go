@@ -1,4 +1,4 @@
-package main
+package internal
 
 /*
  * Copyright 2019 Information Wants To Be Free
@@ -6,3 +6,5 @@ package main
  *
  * This project is licensed under the terms of the Apache 2.0 License.
  */
+
+// TODO: Rather use this than proof of work
