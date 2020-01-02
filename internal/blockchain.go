@@ -17,14 +17,14 @@ const blocksBucket = "blocks"
 
 type Blockchain struct {
 	tip []byte
-	db  *bolt.DB
+	DB  *bolt.DB
 }
 
 func (blockchain *Blockchain) AddBlock(data string) {
 	var lastHash []byte
 
 	// TODO: Error handling
-	err := blockchain.db.View(func(tx *bolt.Tx) error {
+	err := blockchain.DB.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(blocksBucket))
 		lastHash = bucket.Get([]byte(BlocksBucketKeys.LastBlockFileNumber))
 
@@ -34,7 +34,7 @@ func (blockchain *Blockchain) AddBlock(data string) {
 	newBlock := NewBlock(data, lastHash)
 
 	// TODO: Error handling
-	err = blockchain.db.Update(func(tx *bolt.Tx) error {
+	err = blockchain.DB.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(blocksBucket))
 		// TODO: Error handling
 		err := b.Put(newBlock.Hash, newBlock.Serialize())
@@ -49,10 +49,10 @@ func newGenesisBlock() *Block {
 	return NewBlock("Genesis Block", []byte{})
 }
 
-func NewBlockchain() *Blockchain {
+func NewBlockchain(dbFilePath string) *Blockchain {
 	var tip []byte
 	// TODO: Error handling
-	db, err := bolt.Open(dbFile, os.FileMode(0600), nil)
+	db, err := bolt.Open(dbFilePath, os.FileMode(0600), nil)
 
 	// TODO: Error handling
 	err := db.Update(func(tx *bolt.Tx) error {
@@ -72,7 +72,13 @@ func NewBlockchain() *Blockchain {
 		return nil
 	})
 
-	bc := Blockchain{tip, db}
+	blockchain := Blockchain{tip, db}
 
-	return &bc
+	return &blockchain
+}
+
+func (blockchain *Blockchain) Iterator() *BlockchainIterator {
+	blockchainIterator := &BlockchainIterator{blockchain.tip, blockchain.DB}
+
+	return blockchainIterator
 }

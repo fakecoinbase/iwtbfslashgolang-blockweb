@@ -6,3 +6,16 @@ package main
  *
  * This project is licensed under the terms of the Apache 2.0 License.
  */
+
+import (
+	"./cmd"
+	"./internal"
+)
+
+func main() {
+	blockchain := internal.NewBlockchain("")
+	defer blockchain.DB.Close()
+
+	cli := cmd.CLI{blockchain}
+	cli.Run()
+}
