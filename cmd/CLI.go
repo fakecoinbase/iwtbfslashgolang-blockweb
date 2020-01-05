@@ -30,19 +30,30 @@ func (cli *CLI) printChain() {
 	for {
 		block := blockchainIterator.Next()
 
-		fmt.Printf("Prev. hash: %x\n", block.PreviousHash)
+		fmt.Printf("Previous hash: %x\n", block.PreviousHash)
 		fmt.Printf("Data: %s\n", block.Data)
 		fmt.Printf("Hash: %x\n", block.Hash)
 
 		proofOfWork := internal.NewProofOfWork(block)
 
-		fmt.Printf("PoW: %s\n", strconv.FormatBool(proofOfWork.Validate()))
+		fmt.Printf("Valid?: %s\n", strconv.FormatBool(proofOfWork.Validate()))
 		fmt.Println()
 
 		if len(block.PreviousHash) == 0 {
 			break
 		}
 	}
+}
+
+func (cli *CLI) validateArgs() {
+	if len(os.Args) < 2 {
+		cli.printUsage()
+		os.Exit(1)
+	}
+}
+
+func (cli *CLI) printUsage() {
+	fmt.Printf("Consider learning usage - noob!\n")
 }
 
 func (cli *CLI) Run() {
@@ -56,10 +67,10 @@ func (cli *CLI) Run() {
 	switch os.Args[1] {
 	case "addblock":
 		// TODO: Error handling
-		err := addBlockCmd.Parse(os.Args[2:])
+		addBlockCmd.Parse(os.Args[2:])
 	case "printchain":
 		// TODO: Error handling
-		err := printChainCmd.Parse(os.Args[2:])
+		printChainCmd.Parse(os.Args[2:])
 	default:
 		cli.printUsage()
 		os.Exit(1)

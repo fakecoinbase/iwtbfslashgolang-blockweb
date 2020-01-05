@@ -9,6 +9,7 @@ package internal
 
 import (
 	"./persistence/BlocksBucketKeys"
+	"fmt"
 	"github.com/boltdb/bolt"
 	"os"
 )
@@ -24,7 +25,7 @@ func (blockchain *Blockchain) AddBlock(data string) {
 	var lastHash []byte
 
 	// TODO: Error handling
-	err := blockchain.DB.View(func(tx *bolt.Tx) error {
+	blockchain.DB.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(blocksBucket))
 		lastHash = bucket.Get([]byte(BlocksBucketKeys.LastBlockFileNumber))
 
@@ -34,11 +35,11 @@ func (blockchain *Blockchain) AddBlock(data string) {
 	newBlock := NewBlock(data, lastHash)
 
 	// TODO: Error handling
-	err = blockchain.DB.Update(func(tx *bolt.Tx) error {
+	blockchain.DB.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(blocksBucket))
 		// TODO: Error handling
-		err := b.Put(newBlock.Hash, newBlock.Serialize())
-		err = b.Put([]byte(BlocksBucketKeys.LastBlockFileNumber), newBlock.Hash)
+		b.Put(newBlock.Hash, newBlock.Serialize())
+		b.Put([]byte(BlocksBucketKeys.LastBlockFileNumber), newBlock.Hash)
 		blockchain.tip = newBlock.Hash
 
 		return nil
@@ -51,19 +52,23 @@ func newGenesisBlock() *Block {
 
 func NewBlockchain(dbFilePath string) *Blockchain {
 	var tip []byte
-	// TODO: Error handling
 	db, err := bolt.Open(dbFilePath, os.FileMode(0600), nil)
+	if err != nil {
+		// TODO: Use logger
+		fmt.Printf("Error opening Database: %s\n", err)
+		os.Exit(1)
+	}
 
 	// TODO: Error handling
-	err := db.Update(func(tx *bolt.Tx) error {
+	db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(blocksBucket))
 
 		if bucket == nil {
 			genesis := newGenesisBlock()
 			// TODO: Error handling
-			newBucket, err := tx.CreateBucket([]byte(blocksBucket))
-			err = newBucket.Put(genesis.Hash, genesis.Serialize())
-			err = newBucket.Put([]byte(BlocksBucketKeys.LastBlockFileNumber), genesis.Hash)
+			newBucket, _ := tx.CreateBucket([]byte(blocksBucket))
+			newBucket.Put(genesis.Hash, genesis.Serialize())
+			newBucket.Put([]byte(BlocksBucketKeys.LastBlockFileNumber), genesis.Hash)
 			tip = genesis.Hash
 		} else {
 			tip = bucket.Get([]byte(BlocksBucketKeys.LastBlockFileNumber))
