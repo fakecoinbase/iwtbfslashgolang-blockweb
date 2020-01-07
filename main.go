@@ -14,7 +14,7 @@ import (
 
 func main() {
 	blockchain := blockchain.NewBlockchain("", "")
-	defer blockchain.DB.Close()
+	defer blockchain.CloseDB()
 
 	cli := cmd.CLI{blockchain}
 	cli.Run()

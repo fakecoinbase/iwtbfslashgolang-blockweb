@@ -16,6 +16,7 @@ import (
 )
 
 type CLI struct {
+	// TODO: CLI should connect without arguments
 	Blockchain *blockchain.Blockchain
 }
 
@@ -41,7 +42,7 @@ func (cli *CLI) printChain() {
 }
 
 func (cli *CLI) getBalance(address string) {
-	defer cli.Blockchain.DB.Close()
+	defer cli.Blockchain.CloseDB()
 
 	balance := 0
 	unspentTransactionOutputs := cli.Blockchain.FindUnspentTransactionOutputs(address)
@@ -51,6 +52,15 @@ func (cli *CLI) getBalance(address string) {
 	}
 
 	fmt.Printf("Balance of '%s': %d\n", address, balance)
+}
+
+func (cli *CLI) send(from, to string, amount int) {
+	defer cli.Blockchain.CloseDB()
+
+	tx := blockchain.NewTransaction(from, to, amount, cli.Blockchain)
+	cli.Blockchain.MineBlock([]*blockchain.Transaction{tx})
+
+	fmt.Println("Success!")
 }
 
 func (cli *CLI) validateArgs() {
@@ -68,9 +78,13 @@ func (cli *CLI) Run() {
 	cli.validateArgs()
 
 	getBalanceCmd := flag.NewFlagSet("getbalance", flag.ExitOnError)
+	sendCmd := flag.NewFlagSet("send", flag.ExitOnError)
 	printChainCmd := flag.NewFlagSet("printchain", flag.ExitOnError)
 
-	getBalanceData := getBalanceCmd.String("address", "", "Coinbase Address")
+	getBalanceAddress := getBalanceCmd.String("address", "", "The address to get balance for")
+	sendFrom := sendCmd.String("from", "", "Source wallet address")
+	sendTo := sendCmd.String("to", "", "Destination wallet address")
+	sendAmount := sendCmd.Int("amount", 0, "Amount to send")
 
 	switch os.Args[1] {
 	case "getbalance":
@@ -79,21 +93,33 @@ func (cli *CLI) Run() {
 	case "printchain":
 		// TODO: Error handling
 		printChainCmd.Parse(os.Args[2:])
+	case "send":
+		// TODO: Error handling
+		sendCmd.Parse(os.Args[2:])
 	default:
 		cli.printUsage()
 		os.Exit(1)
 	}
 
 	if getBalanceCmd.Parsed() {
-		if *getBalanceData == "" {
+		if *getBalanceAddress == "" {
 			getBalanceCmd.Usage()
 			os.Exit(1)
 		}
 
-		cli.getBalance(*getBalanceData)
+		cli.getBalance(*getBalanceAddress)
 	}
 
 	if printChainCmd.Parsed() {
 		cli.printChain()
+	}
+
+	if sendCmd.Parsed() {
+		if *sendFrom == "" || *sendTo == "" || *sendAmount <= 0 {
+			sendCmd.Usage()
+			os.Exit(1)
+		}
+
+		cli.send(*sendFrom, *sendTo, *sendAmount)
 	}
 }
