@@ -1,4 +1,4 @@
-package ChainstateBucketKeys
+package blockchain
 
 /*
  * Copyright 2020 Information Wants To Be Free
@@ -7,7 +7,4 @@ package ChainstateBucketKeys
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-import ".."
-
-const UnspentTransactionOutput persistence.PersistenceKey = "c"
-const BlockHash persistence.PersistenceKey = "B"
+// TODO: Rather use this than proof of work

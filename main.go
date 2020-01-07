@@ -9,11 +9,11 @@ package main
 
 import (
 	"./cmd"
-	"./internal"
+	"./internal/blockchain"
 )
 
 func main() {
-	blockchain := internal.NewBlockchain("")
+	blockchain := blockchain.NewBlockchain("", "")
 	defer blockchain.DB.Close()
 
 	cli := cmd.CLI{blockchain}

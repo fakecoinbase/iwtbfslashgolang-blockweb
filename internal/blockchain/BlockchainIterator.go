@@ -1,4 +1,4 @@
-package internal
+package blockchain
 
 /*
  * Copyright 2020 Information Wants To Be Free
@@ -7,7 +7,10 @@ package internal
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-import "github.com/boltdb/bolt"
+import (
+	"../persistence"
+	"github.com/boltdb/bolt"
+)
 
 type BlockchainIterator struct {
 	currentHash []byte
@@ -19,7 +22,7 @@ func (blockchainIterator *BlockchainIterator) Next() *Block {
 
 	// TODO: Error handling
 	blockchainIterator.db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(blocksBucket))
+		bucket := tx.Bucket([]byte(persistence.Buckets.BlocksBucket))
 		encodedBlock := bucket.Get(blockchainIterator.currentHash)
 		block = DeserializeBlock(encodedBlock)
 

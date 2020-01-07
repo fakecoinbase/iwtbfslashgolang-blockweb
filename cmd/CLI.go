@@ -8,7 +8,7 @@ package cmd
  */
 
 import (
-	"../internal"
+	"../internal/blockchain"
 	"flag"
 	"fmt"
 	"os"
@@ -16,12 +16,7 @@ import (
 )
 
 type CLI struct {
-	Blockchain *internal.Blockchain
-}
-
-func (cli *CLI) addBlock(data string) {
-	cli.Blockchain.AddBlock(data)
-	fmt.Println("Success!")
+	Blockchain *blockchain.Blockchain
 }
 
 func (cli *CLI) printChain() {
@@ -31,10 +26,10 @@ func (cli *CLI) printChain() {
 		block := blockchainIterator.Next()
 
 		fmt.Printf("Previous hash: %x\n", block.PreviousHash)
-		fmt.Printf("Data: %s\n", block.Data)
+		fmt.Printf("Data: %s\n", block.Transactions)
 		fmt.Printf("Hash: %x\n", block.Hash)
 
-		proofOfWork := internal.NewProofOfWork(block)
+		proofOfWork := blockchain.NewProofOfWork(block)
 
 		fmt.Printf("Valid?: %s\n", strconv.FormatBool(proofOfWork.Validate()))
 		fmt.Println()
@@ -43,6 +38,19 @@ func (cli *CLI) printChain() {
 			break
 		}
 	}
+}
+
+func (cli *CLI) getBalance(address string) {
+	defer cli.Blockchain.DB.Close()
+
+	balance := 0
+	unspentTransactionOutputs := cli.Blockchain.FindUnspentTransactionOutputs(address)
+
+	for _, transactionOutput := range unspentTransactionOutputs {
+		balance += transactionOutput.Value
+	}
+
+	fmt.Printf("Balance of '%s': %d\n", address, balance)
 }
 
 func (cli *CLI) validateArgs() {
@@ -59,15 +67,15 @@ func (cli *CLI) printUsage() {
 func (cli *CLI) Run() {
 	cli.validateArgs()
 
-	addBlockCmd := flag.NewFlagSet("addblock", flag.ExitOnError)
+	getBalanceCmd := flag.NewFlagSet("getbalance", flag.ExitOnError)
 	printChainCmd := flag.NewFlagSet("printchain", flag.ExitOnError)
 
-	addBlockData := addBlockCmd.String("data", "", "Block data")
+	getBalanceData := getBalanceCmd.String("address", "", "Coinbase Address")
 
 	switch os.Args[1] {
-	case "addblock":
+	case "getbalance":
 		// TODO: Error handling
-		addBlockCmd.Parse(os.Args[2:])
+		getBalanceCmd.Parse(os.Args[2:])
 	case "printchain":
 		// TODO: Error handling
 		printChainCmd.Parse(os.Args[2:])
@@ -76,13 +84,13 @@ func (cli *CLI) Run() {
 		os.Exit(1)
 	}
 
-	if addBlockCmd.Parsed() {
-		if *addBlockData == "" {
-			addBlockCmd.Usage()
+	if getBalanceCmd.Parsed() {
+		if *getBalanceData == "" {
+			getBalanceCmd.Usage()
 			os.Exit(1)
 		}
 
-		cli.addBlock(*addBlockData)
+		cli.getBalance(*getBalanceData)
 	}
 
 	if printChainCmd.Parsed() {

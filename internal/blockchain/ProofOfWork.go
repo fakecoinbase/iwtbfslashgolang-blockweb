@@ -1,4 +1,4 @@
-package internal
+package blockchain
 
 /*
  * Copyright 2020 Information Wants To Be Free
@@ -8,7 +8,7 @@ package internal
  */
 
 import (
-	"../pkg"
+	"../../pkg"
 	"bytes"
 	"crypto/sha256"
 	"math"
@@ -28,7 +28,7 @@ func (proofOfWork *ProofOfWork) prepareData(nonce int) []byte {
 	data := bytes.Join(
 		[][]byte{
 			proofOfWork.block.PreviousHash,
-			proofOfWork.block.Data,
+			proofOfWork.block.HashTransactions(),
 			pkg.IntToHex(proofOfWork.block.Timestamp),
 			pkg.IntToHex(int64(targetBits)),
 			pkg.IntToHex(int64(nonce)),

@@ -1,4 +1,4 @@
-package internal
+package persistence
 
 /*
  * Copyright 2020 Information Wants To Be Free
@@ -7,4 +7,10 @@ package internal
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-// TODO: Rather use this than proof of work
+type buckets struct {
+	BlocksBucket string
+}
+
+var Buckets buckets = buckets{
+	BlocksBucket: "blocks",
+}
