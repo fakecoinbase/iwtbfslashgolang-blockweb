@@ -21,7 +21,9 @@ type CLI struct {
 }
 
 func (cli *CLI) printChain() {
-		blockchainIterator := cli.blockchain.Iterator()
+	defer cli.blockchain.CloseDB()
+
+	blockchainIterator := cli.blockchain.Iterator()
 
 	for {
 		block := blockchainIterator.Next()
