@@ -8,14 +8,9 @@ package main
  */
 
 import (
-	"./cmd"
-	"./internal/blockchain"
+	"github.com/iwtbf/golang-blockweb/internal/cli"
 )
 
 func main() {
-	blockchain := blockchain.NewBlockchain("", "")
-	defer blockchain.CloseDB()
-
-	cli := cmd.CLI{blockchain}
-	cli.Run()
+	(*cli.NewCli()).Run()
 }

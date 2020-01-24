@@ -7,10 +7,8 @@ package persistence
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-type buckets struct {
-	BlocksBucket string
-}
+type BucketType string
 
-var Buckets buckets = buckets{
-	BlocksBucket: "blocks",
-}
+const (
+	BlocksBucket BucketType = "blocks"
+)

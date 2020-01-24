@@ -8,9 +8,9 @@ package blockchain
  */
 
 import (
-	"../../pkg"
 	"bytes"
 	"crypto/sha256"
+	"github.com/iwtbf/golang-blockweb/pkg"
 	"math"
 	"math/big"
 )
@@ -75,7 +75,7 @@ func NewProofOfWork(block *Block) *ProofOfWork {
 	target := big.NewInt(1)
 	target.Lsh(target, uint(256-targetBits))
 
-	proofOfWork := &ProofOfWork{block, target}
+	proofOfWork := &ProofOfWork{block: block, target: target}
 
 	return proofOfWork
 }

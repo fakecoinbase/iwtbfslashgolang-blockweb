@@ -24,15 +24,15 @@ type Block struct {
 }
 
 func (b *Block) HashTransactions() []byte {
-	var txHashes [][]byte
-	var txHash [32]byte
+	var transactionHashes [][]byte
+	var transactionHash [32]byte
 
-	for _, tx := range b.Transactions {
-		txHashes = append(txHashes, tx.ID)
+	for _, transaction := range b.Transactions {
+		transactionHashes = append(transactionHashes, transaction.ID)
 	}
-	txHash = sha256.Sum256(bytes.Join(txHashes, []byte{}))
+	transactionHash = sha256.Sum256(bytes.Join(transactionHashes, []byte{}))
 
-	return txHash[:]
+	return transactionHash[:]
 }
 
 func (block *Block) SetHash() {
@@ -68,7 +68,7 @@ func DeserializeBlock(data []byte) *Block {
 
 // TODO: data [string] might not be applicable
 func NewBlock(transactions []*Transaction, previousHash []byte) *Block {
-	block := &Block{time.Now().Unix(), transactions, previousHash, []byte{}, 0}
+	block := &Block{Timestamp: time.Now().Unix(), Transactions: transactions, PreviousHash: previousHash, Hash: []byte{}, Nonce: 0}
 	pow := NewProofOfWork(block)
 	nonce, hash := pow.Run()
 

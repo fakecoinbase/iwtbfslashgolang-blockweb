@@ -1,4 +1,4 @@
-package cmd
+package blockchain
 
 /*
  * Copyright 2020 Information Wants To Be Free
@@ -6,3 +6,7 @@ package cmd
  *
  * This project is licensed under the terms of the Apache 2.0 License.
  */
+
+type Wallets struct {
+	Wallets map[string]*Wallet
+}

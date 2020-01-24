@@ -8,8 +8,8 @@ package blockchain
  */
 
 import (
-	"../persistence"
 	"github.com/boltdb/bolt"
+	"github.com/iwtbf/golang-blockweb/internal/persistence"
 )
 
 type BlockchainIterator struct {
@@ -22,7 +22,7 @@ func (blockchainIterator *BlockchainIterator) Next() *Block {
 
 	// TODO: Error handling
 	blockchainIterator.db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(persistence.Buckets.BlocksBucket))
+		bucket := tx.Bucket([]byte(persistence.BlocksBucket))
 		encodedBlock := bucket.Get(blockchainIterator.currentHash)
 		block = DeserializeBlock(encodedBlock)
 

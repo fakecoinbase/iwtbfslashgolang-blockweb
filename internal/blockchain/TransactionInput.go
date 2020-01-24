@@ -1,5 +1,7 @@
 package blockchain
 
+import "bytes"
+
 /*
  * Copyright 2020 Information Wants To Be Free
  * Visit: https://github.com/iwtbf
@@ -8,11 +10,14 @@ package blockchain
  */
 
 type TransactionInput struct {
-	TransactionID   []byte
-	Vout            int
-	ScriptSignature string
+	TransactionID       []byte
+	transactionOutputID int
+	Signature           []byte
+	PublicKey           []byte
 }
 
-func (transactionInput *TransactionInput) CanUnlockUsing(unlockingData string) bool {
-	return transactionInput.ScriptSignature == unlockingData
+func (transactionInput *TransactionInput) UsesKey(pubKeyHash []byte) bool {
+	lockingHash := HashPublicKey(transactionInput.PublicKey)
+
+	return bytes.Compare(lockingHash, pubKeyHash) == 0
 }

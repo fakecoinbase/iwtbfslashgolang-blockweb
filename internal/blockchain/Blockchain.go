@@ -8,12 +8,17 @@ package blockchain
  */
 
 import (
-	"../persistence"
+	"bytes"
+	"crypto/ecdsa"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"github.com/boltdb/bolt"
+	"github.com/iwtbf/golang-blockweb/internal/persistence"
 	"os"
 )
+
+const genesisCoinbaseData = "she isn't human; she is art, with a heart."
 
 type Blockchain struct {
 	tip []byte
@@ -25,7 +30,7 @@ func (blockchain *Blockchain) MineBlock(transactions []*Transaction) {
 
 	// TODO: Error handling
 	blockchain.db.View(func(boltTransaction *bolt.Tx) error {
-		bucket := boltTransaction.Bucket([]byte(persistence.Buckets.BlocksBucket))
+		bucket := boltTransaction.Bucket([]byte(persistence.BlocksBucket))
 		previousHash = bucket.Get([]byte("l"))
 
 		return nil
@@ -35,7 +40,7 @@ func (blockchain *Blockchain) MineBlock(transactions []*Transaction) {
 
 	// TODO: Error handling
 	blockchain.db.Update(func(boltTransaction *bolt.Tx) error {
-		bucket := boltTransaction.Bucket([]byte(persistence.Buckets.BlocksBucket))
+		bucket := boltTransaction.Bucket([]byte(persistence.BlocksBucket))
 		// TODO: Error handling
 		bucket.Put(newBlock.Hash, newBlock.Serialize())
 
@@ -48,9 +53,92 @@ func (blockchain *Blockchain) MineBlock(transactions []*Transaction) {
 	})
 }
 
-func (blockchain *Blockchain) FindUnspentTransactions(address string) []Transaction {
+func (blockchain *Blockchain) FindTransaction(ID []byte) (Transaction, error) {
+	blockchainIterator := blockchain.Iterator()
+
+	for {
+		block := blockchainIterator.Next()
+
+		for _, transaction := range block.Transactions {
+			if bytes.Compare(transaction.ID, ID) == 0 {
+				return *transaction, nil
+			}
+		}
+
+		if len(block.PreviousHash) == 0 {
+			break
+		}
+	}
+
+	return Transaction{}, errors.New("Transaction was not found")
+}
+
+func (blockchain *Blockchain) SignTransaction(transaction *Transaction, privateKey ecdsa.PrivateKey) {
+	previousTransactions := make(map[string]Transaction)
+
+	for _, transactionInput := range transaction.TransactionInputs {
+		// TODO: Error handling
+		previousTransaction, _ := blockchain.FindTransaction(transactionInput.TransactionID)
+		previousTransactions[hex.EncodeToString(previousTransaction.ID)] = previousTransaction
+	}
+
+	transaction.Sign(privateKey, previousTransactions)
+}
+
+func (blockchain *Blockchain) VerifyTransaction(transaction *Transaction) bool {
+	prevTXs := make(map[string]Transaction)
+
+	for _, transactionInput := range transaction.TransactionInputs {
+		// TODO: Error handling
+		prevTX, _ := blockchain.FindTransaction(transactionInput.TransactionID)
+		prevTXs[hex.EncodeToString(prevTX.ID)] = prevTX
+	}
+
+	return transaction.Verify(prevTXs)
+}
+
+func (blockchain *Blockchain) FindSpendableOutputs(publicKeyHash []byte, amount int) (int, map[string][]int) {
+	unspentOutputs := make(map[string][]int)
+	unspentTransactions := blockchain.FindUnspentTransactions(publicKeyHash)
+	accumulated := 0
+
+Work:
+	for _, unspentTransaction := range unspentTransactions {
+		transactionID := hex.EncodeToString(unspentTransaction.ID)
+
+		for outputIterator, transactionOutput := range unspentTransaction.TransactionOutputs {
+			if transactionOutput.IsLockedWithKey(publicKeyHash) && accumulated < amount {
+				accumulated += transactionOutput.Value
+				unspentOutputs[transactionID] = append(unspentOutputs[transactionID], outputIterator)
+
+				if accumulated >= amount {
+					break Work
+				}
+			}
+		}
+	}
+
+	return accumulated, unspentOutputs
+}
+
+func (blockchain *Blockchain) FindUnspentOutputs(pubKeyHash []byte) []TransactionOutput {
+	var unspentTransactionOutputs []TransactionOutput
+	unspentTransactions := blockchain.FindUnspentTransactions(pubKeyHash)
+
+	for _, unspentTransaction := range unspentTransactions {
+		for _, transactionOutput := range unspentTransaction.TransactionOutputs {
+			if transactionOutput.IsLockedWithKey(pubKeyHash) {
+				unspentTransactionOutputs = append(unspentTransactionOutputs, transactionOutput)
+			}
+		}
+	}
+
+	return unspentTransactionOutputs
+}
+
+func (blockchain *Blockchain) FindUnspentTransactions(pubKeyHash []byte) []Transaction {
 	var unspentTransactions []Transaction
-	spentTransactions := make(map[string][]int)
+	spentTransactionOutputs := make(map[string][]int)
 	blockchainIterator := blockchain.Iterator()
 
 	for {
@@ -60,25 +148,26 @@ func (blockchain *Blockchain) FindUnspentTransactions(address string) []Transact
 			transactionID := hex.EncodeToString(transaction.ID)
 
 		Outputs:
-			for outputIndex, transactionOutput := range transaction.Vout {
-				if spentTransactions[transactionID] != nil {
-					for _, spentOutput := range spentTransactions[transactionID] {
-						if spentOutput == outputIndex {
+			for outputIterator, transactionOutput := range transaction.TransactionOutputs {
+				// Was the output spent?
+				if spentTransactionOutputs[transactionID] != nil {
+					for _, spentOutIdx := range spentTransactionOutputs[transactionID] {
+						if spentOutIdx == outputIterator {
 							continue Outputs
 						}
 					}
 				}
 
-				if transactionOutput.CanUnlockUsing(address) {
+				if transactionOutput.IsLockedWithKey(pubKeyHash) {
 					unspentTransactions = append(unspentTransactions, *transaction)
 				}
 			}
 
 			if transaction.IsCoinbase() == false {
-				for _, transactionInput := range transaction.Vin {
-					if transactionInput.CanUnlockUsing(address) {
-						inputTransactionID := hex.EncodeToString(transactionInput.TransactionID)
-						spentTransactions[inputTransactionID] = append(spentTransactions[inputTransactionID], transactionInput.Vout)
+				for _, transactionInput := range transaction.TransactionInputs {
+					if transactionInput.UsesKey(pubKeyHash) {
+						transactionInputID := hex.EncodeToString(transactionInput.TransactionID)
+						spentTransactionOutputs[transactionInputID] = append(spentTransactionOutputs[transactionInputID], transactionInput.transactionOutputID)
 					}
 				}
 			}
@@ -90,45 +179,6 @@ func (blockchain *Blockchain) FindUnspentTransactions(address string) []Transact
 	}
 
 	return unspentTransactions
-}
-
-func (blockchain *Blockchain) FindUnspentTransactionOutputs(address string) []TransactionOutput {
-	var unspentTransactionOutputs []TransactionOutput
-	unspentTransactions := blockchain.FindUnspentTransactions(address)
-
-	for _, unspentTransaction := range unspentTransactions {
-		for _, transactionOutput := range unspentTransaction.Vout {
-			if transactionOutput.CanUnlockUsing(address) {
-				unspentTransactionOutputs = append(unspentTransactionOutputs, transactionOutput)
-			}
-		}
-	}
-
-	return unspentTransactionOutputs
-}
-
-func (blockchain *Blockchain) FindSpendableOutputs(address string, amount int) (int, map[string][]int) {
-	unspentOutputs := make(map[string][]int)
-	unspentTransactions := blockchain.FindUnspentTransactions(address)
-	accumulated := 0
-
-Work:
-	for _, unspentTransaction := range unspentTransactions {
-		transactionID := hex.EncodeToString(unspentTransaction.ID)
-
-		for outputIndex, transactionOutput := range unspentTransaction.Vout {
-			if transactionOutput.CanUnlockUsing(address) && accumulated < amount {
-				accumulated += transactionOutput.Value
-				unspentOutputs[transactionID] = append(unspentOutputs[transactionID], outputIndex)
-
-				if accumulated >= amount {
-					break Work
-				}
-			}
-		}
-	}
-
-	return accumulated, unspentOutputs
 }
 
 func (blockchain *Blockchain) CloseDB() {
@@ -146,24 +196,24 @@ func NewBlockchain(dbFilePath, genesisAddress string) *Blockchain {
 
 	// TODO: Error handling
 	db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(persistence.Buckets.BlocksBucket))
+		bucket := tx.Bucket([]byte(persistence.BlocksBucket))
 
 		if bucket == nil {
-			coinbaseTransaction := NewCoinbaseTransaction(genesisAddress)
+			coinbaseTransaction := NewCoinbaseTransaction(genesisAddress, genesisCoinbaseData)
 			genesis := NewGenesisBlock(coinbaseTransaction)
 			// TODO: Error handling
-			newBucket, _ := tx.CreateBucket([]byte(persistence.Buckets.BlocksBucket))
+			newBucket, _ := tx.CreateBucket([]byte(persistence.BlocksBucket))
 			newBucket.Put(genesis.Hash, genesis.Serialize())
-			newBucket.Put([]byte(persistence.BlocksBucketKeys.LastBlockFileNumber), genesis.Hash)
+			newBucket.Put([]byte(persistence.LastBlockFileNumber), genesis.Hash)
 			tip = genesis.Hash
 		} else {
-			tip = bucket.Get([]byte(persistence.BlocksBucketKeys.LastBlockFileNumber))
+			tip = bucket.Get([]byte(persistence.LastBlockFileNumber))
 		}
 
 		return nil
 	})
 
-	blockchain := Blockchain{tip, db}
+	blockchain := Blockchain{tip: tip, db: db}
 
 	return &blockchain
 }
