@@ -16,8 +16,9 @@ import (
 	"golang.org/x/crypto/ripemd160"
 )
 
+const AddressChecksumLength = 4
+
 const version = byte(0x00)
-const addressChecksumLen = 4
 
 type Wallet struct {
 	PrivateKey ecdsa.PrivateKey
@@ -49,7 +50,7 @@ func checksum(payload []byte) []byte {
 	firstSHA := sha256.Sum256(payload)
 	secondSHA := sha256.Sum256(firstSHA[:])
 
-	return secondSHA[:addressChecksumLen]
+	return secondSHA[:AddressChecksumLength]
 }
 
 func newKeyPair() (ecdsa.PrivateKey, []byte) {

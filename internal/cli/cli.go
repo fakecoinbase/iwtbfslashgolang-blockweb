@@ -10,61 +10,11 @@ package cli
 import (
 	"flag"
 	"fmt"
-	"github.com/btcsuite/btcutil/base58"
-	"github.com/iwtbf/golang-blockweb/internal/blockchain"
+	"log"
 	"os"
-	"strconv"
 )
 
 type CLI struct {
-	blockchain *blockchain.Blockchain
-}
-
-func (cli *CLI) printChain() {
-	defer cli.blockchain.CloseDB()
-
-	blockchainIterator := cli.blockchain.Iterator()
-
-	for {
-		block := blockchainIterator.Next()
-
-		fmt.Printf("Previous hash: %x\n", block.PreviousHash)
-		fmt.Printf("Data: %s\n", block.Transactions)
-		fmt.Printf("hash: %x\n", block.Hash)
-
-		proofOfWork := blockchain.NewProofOfWork(block)
-
-		fmt.Printf("Valid?: %s\n", strconv.FormatBool(proofOfWork.Validate()))
-		fmt.Println()
-
-		if len(block.PreviousHash) == 0 {
-			break
-		}
-	}
-}
-
-func (cli *CLI) getBalance(address string) {
-	defer cli.blockchain.CloseDB()
-
-	balance := 0
-	publicKeyHash := base58.Decode(address)
-	publicKeyHash = publicKeyHash[1 : len(publicKeyHash)-4]
-	unspentTransactionOutputs := cli.blockchain.FindUnspentOutputs(publicKeyHash)
-
-	for _, unspentTransactionOutput := range unspentTransactionOutputs {
-		balance += unspentTransactionOutput.Value
-	}
-
-	fmt.Printf("Balance of '%s': %d\n", address, balance)
-}
-
-func (cli *CLI) send(from, to string, amount int) {
-	defer cli.blockchain.CloseDB()
-
-	tx := blockchain.NewTransaction([]byte(from), []byte(to), amount, cli.blockchain)
-	cli.blockchain.MineBlock([]*blockchain.Transaction{tx})
-
-	fmt.Println("Success!")
 }
 
 func (cli *CLI) validateArgs() {
@@ -75,32 +25,68 @@ func (cli *CLI) validateArgs() {
 }
 
 func (cli *CLI) printUsage() {
-	fmt.Printf("Consider learning usage - noob!\n")
+	fmt.Println("Usage:")
+	fmt.Println("\tcreateblockchain -address ADDRESS - Create a blockchain and send genesis block reward to ADDRESS")
+	fmt.Println("\tcreatewallet - Generates a new key-pair and saves it into the wallet file")
+	fmt.Println("\tgetbalance -address ADDRESS - Get balance of ADDRESS")
+	fmt.Println("\tlistaddresses - Lists all addresses from the wallet file")
+	fmt.Println("\tprintchain - Print all the blocks of the blockchain")
+	fmt.Println("\tsend -from FROM -to TO -amount AMOUNT - Send AMOUNT of coins from FROM address to TO")
 }
 
 func (cli *CLI) Run() {
 	cli.validateArgs()
 
-	getBalanceCmd := flag.NewFlagSet("getbalance", flag.ExitOnError)
-	getBalanceAddress := getBalanceCmd.String("address", "", "The address to get balance for")
+	nodeID := os.Getenv("NODE_ID")
+	if nodeID == "" {
+		fmt.Printf("NODE_ID env var is not set!")
+		os.Exit(1)
+	}
 
+	getBalanceCmd := flag.NewFlagSet("getbalance", flag.ExitOnError)
+	createBlockchainCmd := flag.NewFlagSet("createblockchain", flag.ExitOnError)
+	createWalletCmd := flag.NewFlagSet("createwallet", flag.ExitOnError)
+	listAddressesCmd := flag.NewFlagSet("listaddresses", flag.ExitOnError)
 	sendCmd := flag.NewFlagSet("send", flag.ExitOnError)
+	printChainCmd := flag.NewFlagSet("printchain", flag.ExitOnError)
+
+	getBalanceAddress := getBalanceCmd.String("address", "", "The address to get balance for")
+	createBlockchainAddress := createBlockchainCmd.String("address", "", "The address to send genesis block reward to")
 	sendFrom := sendCmd.String("from", "", "Source wallet address")
 	sendTo := sendCmd.String("to", "", "Destination wallet address")
 	sendAmount := sendCmd.Int("amount", 0, "Amount to send")
 
-	printChainCmd := flag.NewFlagSet("printchain", flag.ExitOnError)
-
 	switch os.Args[1] {
 	case "getbalance":
-		// TODO: Error handling
-		getBalanceCmd.Parse(os.Args[2:])
+		err := getBalanceCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Panic(err)
+		}
+	case "createblockchain":
+		err := createBlockchainCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Panic(err)
+		}
+	case "createwallet":
+		err := createWalletCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Panic(err)
+		}
+	case "listaddresses":
+		err := listAddressesCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Panic(err)
+		}
 	case "printchain":
-		// TODO: Error handling
-		printChainCmd.Parse(os.Args[2:])
+		err := printChainCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Panic(err)
+		}
 	case "send":
-		// TODO: Error handling
-		sendCmd.Parse(os.Args[2:])
+		err := sendCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Panic(err)
+		}
 	default:
 		cli.printUsage()
 		os.Exit(1)
@@ -112,11 +98,28 @@ func (cli *CLI) Run() {
 			os.Exit(1)
 		}
 
-		cli.getBalance(*getBalanceAddress)
+		cli.getBalance(*getBalanceAddress, nodeID)
+	}
+
+	if createBlockchainCmd.Parsed() {
+		if *createBlockchainAddress == "" {
+			createBlockchainCmd.Usage()
+			os.Exit(1)
+		}
+
+		cli.createBlockchain(*createBlockchainAddress, nodeID)
+	}
+
+	if createWalletCmd.Parsed() {
+		cli.createWallet(nodeID)
+	}
+
+	if listAddressesCmd.Parsed() {
+		cli.listAddresses(nodeID)
 	}
 
 	if printChainCmd.Parsed() {
-		cli.printChain()
+		cli.printChain(nodeID)
 	}
 
 	if sendCmd.Parsed() {
@@ -125,10 +128,10 @@ func (cli *CLI) Run() {
 			os.Exit(1)
 		}
 
-		cli.send(*sendFrom, *sendTo, *sendAmount)
+		cli.send(*sendFrom, *sendTo, *sendAmount, nodeID)
 	}
 }
 
 func NewCli() *CLI {
-	return &CLI{blockchain.NewBlockchain("", "")}
+	return &CLI{}
 }

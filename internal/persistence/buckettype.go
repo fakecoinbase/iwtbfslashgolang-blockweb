@@ -11,4 +11,5 @@ type BucketType string
 
 const (
 	BlocksBucket BucketType = "blocks"
+	ChainstateBucket BucketType = "chainstate"
 )

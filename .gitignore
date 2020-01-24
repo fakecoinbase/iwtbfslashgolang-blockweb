@@ -38,3 +38,7 @@ cmake-build-*/
 
 # File-based project format
 *.iws
+
+# Blockchain files
+golang_blockweb_*.db
+wallet_*.dat

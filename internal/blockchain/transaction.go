@@ -16,11 +16,9 @@ import (
 	"encoding/gob"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"math/big"
-	"os"
 )
-
-var coinbaseTransactionValue = "I am a dreamer. Seriously, I'm living on another planet."
 
 type Transaction struct {
 	ID                 []byte
@@ -108,48 +106,54 @@ func (transaction *Transaction) Verify(previousTransactions map[string]Transacti
 	return true
 }
 
-func NewCoinbaseTransaction(to, data string) *Transaction {
-	transactionInput := TransactionInput{TransactionID: []byte{}, transactionOutputID: -1, Signature: nil, PublicKey: []byte(coinbaseTransactionValue)}
+func NewCoinbaseTransaction(to []byte, data string) *Transaction {
+	if data == "" {
+		randomData := make([]byte, 20)
+		// TODO: Error handling
+		rand.Read(randomData)
+
+		data = fmt.Sprintf("%x", randomData)
+	}
+
+	transactionInput := TransactionInput{TransactionID: []byte{}, transactionOutputID: -1, Signature: nil, PublicKey: []byte(data)}
 	transactionOutput := NewTransactionOutput(50000, to)
 	transaction := Transaction{nil, []TransactionInput{transactionInput}, []TransactionOutput{*transactionOutput}}
-	transaction.hash()
+	transaction.ID = transaction.hash()
 
 	return &transaction
 }
 
-func NewTransaction(from, to []byte, amount int, blockchain *Blockchain) *Transaction {
+func NewTransaction(wallet *Wallet, to []byte, amount int, unspentTransactionOutputSet UnspentTransactionOutputSet) *Transaction {
 	var transactionInputs []TransactionInput
 	var transactionOutputs []TransactionOutput
 
-	if amount <= 0 {
-		// TODO: This is not a transaction
+	publicKeyHash := HashPublicKey(wallet.PublicKey)
+	accumulated, spendableOutputs := unspentTransactionOutputSet.FindSpendableOutputs(publicKeyHash, amount)
+
+	if accumulated < amount {
+		// TODO: Not enough balance
+		log.Panic("ERROR: Not enough funds")
 	}
 
-	balance, unspentOutputs := blockchain.FindSpendableOutputs(from, amount)
-
-	if balance < amount {
-		// TODO: Maybe use log.Panic
-		fmt.Printf("Not enough balance on account!")
-		os.Exit(1)
-	}
-
-	for outputIndex, unspentOutput := range unspentOutputs {
+	for outputIDIterator, spendableOutputIDs := range spendableOutputs {
 		// TODO: Error handling
-		transactionID, _ := hex.DecodeString(outputIndex)
+		transactionID, _ := hex.DecodeString(outputIDIterator)
 
-		for _, outputTransaction := range unspentOutput {
-			input := TransactionInput{transactionID, outputTransaction, from, nil}
+		for _, spendableOutputID := range spendableOutputIDs {
+			input := TransactionInput{transactionID, spendableOutputID, nil, wallet.PublicKey}
 			transactionInputs = append(transactionInputs, input)
 		}
 	}
 
-	transactionOutputs = append(transactionOutputs, TransactionOutput{amount, to})
-	if balance > amount {
-		transactionOutputs = append(transactionOutputs, TransactionOutput{balance - amount, from}) // a change
+	from := fmt.Sprintf("%s", wallet.GetAddress())
+	transactionOutputs = append(transactionOutputs, *NewTransactionOutput(amount, to))
+	if accumulated > amount {
+		transactionOutputs = append(transactionOutputs, *NewTransactionOutput(accumulated-amount, []byte(from))) // a change
 	}
 
 	transaction := Transaction{nil, transactionInputs, transactionOutputs}
-	transaction.hash()
+	transaction.ID = transaction.hash()
+	unspentTransactionOutputSet.Blockchain.SignTransaction(&transaction, wallet.PrivateKey)
 
 	return &transaction
 }

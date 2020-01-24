@@ -27,9 +27,9 @@ func (transactionOutput *TransactionOutput) IsLockedWithKey(pubKeyHash []byte) b
 	return bytes.Compare(transactionOutput.PublicKeyHash, pubKeyHash) == 0
 }
 
-func NewTransactionOutput(value int, address string) *TransactionOutput {
+func NewTransactionOutput(value int, address []byte) *TransactionOutput {
 	transactionOutput := &TransactionOutput{Value: value, PublicKeyHash: nil}
-	transactionOutput.Lock([]byte(address))
+	transactionOutput.Lock(address)
 
 	return transactionOutput
 }
