@@ -77,6 +77,48 @@ func (blockchain *Blockchain) VerifyTransaction(transaction *Transaction) bool {
 	return transaction.Verify(previousTransactions)
 }
 
+func (blockchain *Blockchain) FindUnspentTransactionOutputs() map[string]TransactionOutputSet {
+	unspentTransactionOutput := make(map[string]TransactionOutputSet)
+	spentTransactionOutputs := make(map[string][]int)
+	blockchainIterator := blockchain.Iterator()
+
+	for {
+		block := blockchainIterator.Next()
+
+		for _, transaction := range block.Transactions {
+			transactionID := hex.EncodeToString(transaction.ID)
+
+		Outputs:
+			for outputIterator, transactionOutput := range transaction.TransactionOutputs {
+				if spentTransactionOutputs[transactionID] != nil {
+					for _, spentOutputIndex := range spentTransactionOutputs[transactionID] {
+						if spentOutputIndex == outputIterator {
+							continue Outputs
+						}
+					}
+				}
+
+				transactionOutputs := unspentTransactionOutput[transactionID]
+				transactionOutputs.TransactionOutputs = append(transactionOutputs.TransactionOutputs, transactionOutput)
+				unspentTransactionOutput[transactionID] = transactionOutputs
+			}
+
+			if transaction.IsCoinbase() == false {
+				for _, transactionInput := range transaction.TransactionInputs {
+					transactionInputID := hex.EncodeToString(transactionInput.TransactionID)
+					spentTransactionOutputs[transactionInputID] = append(spentTransactionOutputs[transactionInputID], transactionInput.transactionOutputID)
+				}
+			}
+		}
+
+		if len(block.PreviousHash) == 0 {
+			break
+		}
+	}
+
+	return unspentTransactionOutput
+}
+
 func (blockchain *Blockchain) MineBlock(transactions []*Transaction) *Block {
 	var lastHash []byte
 	var lastHeight int

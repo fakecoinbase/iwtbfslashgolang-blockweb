@@ -12,14 +12,13 @@ import (
 	"github.com/iwtbf/golang-blockweb/internal/blockchain"
 )
 
-func (cli *CLI) createBlockchain(address, nodeID string) {
-	// TODO: Validate address
-
-	chain := blockchain.CreateBlockchain(address, nodeID)
-	chain.CloseDB()
-
+func (cli *CLI) reindexUTXO(nodeID string) {
+	chain := blockchain.NewBlockchain(nodeID)
 	unspentTransactionOutputSet := blockchain.UnspentTransactionOutputSet{chain}
 	unspentTransactionOutputSet.Reindex()
 
-	fmt.Println("Done!")
+	defer chain.CloseDB()
+
+	amountOfTransactions := unspentTransactionOutputSet.CountTransactions()
+	fmt.Printf("Done! There are %d transactions in the UTXO set.\n", amountOfTransactions)
 }

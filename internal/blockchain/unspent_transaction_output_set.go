@@ -70,6 +70,25 @@ func (unspentTransactionOutputSet UnspentTransactionOutputSet) FindUnspentTransa
 	return transactionOutputs
 }
 
+func (unspentTransactionOutputSet UnspentTransactionOutputSet) CountTransactions() int {
+	db := unspentTransactionOutputSet.Blockchain.db
+	counter := 0
+
+	// TODO: Error handling
+	db.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(persistence.ChainstateBucket))
+		cursor := bucket.Cursor()
+
+		for key, _ := cursor.First(); key != nil; key, _ = cursor.Next() {
+			counter++
+		}
+
+		return nil
+	})
+
+	return counter
+}
+
 func (unspentTransactionOutputSet UnspentTransactionOutputSet) Update(block *Block) {
 	db := unspentTransactionOutputSet.Blockchain.db
 
@@ -108,6 +127,39 @@ func (unspentTransactionOutputSet UnspentTransactionOutputSet) Update(block *Blo
 
 			// TODO: Error handling
 			bucket.Put(transaction.ID, transactionOutputSet.Serialize())
+		}
+
+		return nil
+	})
+}
+
+func (unspentTransactionOutputSet UnspentTransactionOutputSet) Reindex() {
+	db := unspentTransactionOutputSet.Blockchain.db
+	chainstateBucketName := []byte(persistence.ChainstateBucket)
+
+	// TODO: Error handling
+	db.Update(func(tx *bolt.Tx) error {
+		// TODO: Error handling
+		tx.DeleteBucket(chainstateBucketName)
+
+		// TODO: Error handling
+		tx.CreateBucket(chainstateBucketName)
+
+		return nil
+	})
+
+	unspentTransactionOutputs := unspentTransactionOutputSet.Blockchain.FindUnspentTransactionOutputs()
+
+	// TODO: Error handling
+	db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(chainstateBucketName)
+
+		for transactionIterator, transactionOutputSet := range unspentTransactionOutputs {
+			// TODO: Error handling
+			key, _ := hex.DecodeString(transactionIterator)
+
+			// TODO: Error handling
+			b.Put(key, transactionOutputSet.Serialize())
 		}
 
 		return nil

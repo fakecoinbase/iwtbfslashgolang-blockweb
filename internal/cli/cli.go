@@ -30,6 +30,7 @@ func (cli *CLI) printUsage() {
 	fmt.Println("\tcreatewallet - Generates a new key-pair and saves it into the wallet file")
 	fmt.Println("\tgetbalance -address ADDRESS - Get balance of ADDRESS")
 	fmt.Println("\tlistaddresses - Lists all addresses from the wallet file")
+	fmt.Println("\treindex - Rebuilds the UnspentTransactionOutputSet")
 	fmt.Println("\tprintchain - Print all the blocks of the blockchain")
 	fmt.Println("\tsend -from FROM -to TO -amount AMOUNT - Send AMOUNT of coins from FROM address to TO")
 }
@@ -47,6 +48,7 @@ func (cli *CLI) Run() {
 	createBlockchainCmd := flag.NewFlagSet("createblockchain", flag.ExitOnError)
 	createWalletCmd := flag.NewFlagSet("createwallet", flag.ExitOnError)
 	listAddressesCmd := flag.NewFlagSet("listaddresses", flag.ExitOnError)
+	reindexCmd := flag.NewFlagSet("reindex", flag.ExitOnError)
 	sendCmd := flag.NewFlagSet("send", flag.ExitOnError)
 	printChainCmd := flag.NewFlagSet("printchain", flag.ExitOnError)
 
@@ -79,6 +81,11 @@ func (cli *CLI) Run() {
 		}
 	case "printchain":
 		err := printChainCmd.Parse(os.Args[2:])
+		if err != nil {
+			log.Panic(err)
+		}
+	case "reindex":
+		err := reindexCmd.Parse(os.Args[2:])
 		if err != nil {
 			log.Panic(err)
 		}
@@ -120,6 +127,10 @@ func (cli *CLI) Run() {
 
 	if printChainCmd.Parsed() {
 		cli.printChain(nodeID)
+	}
+
+	if reindexCmd.Parsed() {
+		cli.reindexUTXO(nodeID)
 	}
 
 	if sendCmd.Parsed() {

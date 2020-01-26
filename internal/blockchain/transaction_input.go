@@ -1,13 +1,13 @@
 package blockchain
 
-import "bytes"
-
 /*
  * Copyright 2020 Information Wants To Be Free
  * Visit: https://github.com/iwtbf
  *
  * This project is licensed under the terms of the Apache 2.0 License.
  */
+
+import "bytes"
 
 type TransactionInput struct {
 	TransactionID       []byte
