@@ -66,6 +66,10 @@ func (blockchain *Blockchain) SignTransaction(transaction *Transaction, privateK
 }
 
 func (blockchain *Blockchain) VerifyTransaction(transaction *Transaction) bool {
+	if transaction.IsCoinbase() {
+		return true
+	}
+
 	previousTransactions := make(map[string]Transaction)
 
 	for _, transactionInput := range transaction.TransactionInputs {
@@ -194,7 +198,7 @@ func CreateBlockchain(address, nodeID string) *Blockchain {
 		return nil
 	})
 
-	return &Blockchain{tip, db}
+	return &Blockchain{tip: tip, db: db}
 }
 
 func NewBlockchain(nodeID string) *Blockchain {
@@ -229,7 +233,7 @@ func dbExists(dbFile string) bool {
 }
 
 func (blockchain *Blockchain) Iterator() *BlockchainIterator {
-	blockchainIterator := &BlockchainIterator{blockchain.tip, blockchain.db}
+	blockchainIterator := &BlockchainIterator{currentHash: blockchain.tip, db: blockchain.db}
 
 	return blockchainIterator
 }

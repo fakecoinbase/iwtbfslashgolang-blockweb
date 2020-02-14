@@ -16,7 +16,7 @@ func (cli *CLI) send(from, to string, amount int, nodeID string) {
 	// TODO: Validate addresses
 
 	chain := blockchain.NewBlockchain(nodeID)
-	unspentTransactionOutputSet := blockchain.UnspentTransactionOutputSet{chain}
+	unspentTransactionOutputSet := blockchain.UnspentTransactionOutputSet{Blockchain: chain}
 	defer chain.CloseDB()
 
 	// TODO: Error handling
@@ -25,7 +25,7 @@ func (cli *CLI) send(from, to string, amount int, nodeID string) {
 
 	transaction := blockchain.NewTransaction(&wallet, []byte(to), amount, unspentTransactionOutputSet)
 
-	// Implement mining
+	// TODO: Implement mining
 	//if mineNow {
 	coinbaseTransaction := blockchain.NewCoinbaseTransaction([]byte(from), "")
 	transactions := []*blockchain.Transaction{coinbaseTransaction, transaction}

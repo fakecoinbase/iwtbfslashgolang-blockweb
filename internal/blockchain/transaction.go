@@ -97,7 +97,7 @@ func (transaction *Transaction) Verify(previousTransactions map[string]Transacti
 		x.SetBytes(transactionInput.PublicKey[:(keyLen / 2)])
 		y.SetBytes(transactionInput.PublicKey[(keyLen / 2):])
 
-		rawPubKey := ecdsa.PublicKey{curve, &x, &y}
+		rawPubKey := ecdsa.PublicKey{Curve: curve, X: &x, Y: &y}
 		if ecdsa.Verify(&rawPubKey, transactionCopy.ID, &r, &s) == false {
 			return false
 		}
@@ -117,7 +117,7 @@ func NewCoinbaseTransaction(to []byte, data string) *Transaction {
 
 	transactionInput := TransactionInput{TransactionID: []byte{}, transactionOutputID: -1, Signature: nil, PublicKey: []byte(data)}
 	transactionOutput := NewTransactionOutput(50000, to)
-	transaction := Transaction{nil, []TransactionInput{transactionInput}, []TransactionOutput{*transactionOutput}}
+	transaction := Transaction{ID: nil, TransactionInputs: []TransactionInput{transactionInput}, TransactionOutputs: []TransactionOutput{*transactionOutput}}
 	transaction.ID = transaction.hash()
 
 	return &transaction
@@ -140,7 +140,7 @@ func NewTransaction(wallet *Wallet, to []byte, amount int, unspentTransactionOut
 		transactionID, _ := hex.DecodeString(outputIDIterator)
 
 		for _, spendableOutputID := range spendableOutputIDs {
-			input := TransactionInput{transactionID, spendableOutputID, nil, wallet.PublicKey}
+			input := TransactionInput{TransactionID: transactionID, transactionOutputID: spendableOutputID, Signature: nil, PublicKey: wallet.PublicKey}
 			transactionInputs = append(transactionInputs, input)
 		}
 	}
@@ -151,7 +151,7 @@ func NewTransaction(wallet *Wallet, to []byte, amount int, unspentTransactionOut
 		transactionOutputs = append(transactionOutputs, *NewTransactionOutput(accumulated-amount, []byte(from))) // a change
 	}
 
-	transaction := Transaction{nil, transactionInputs, transactionOutputs}
+	transaction := Transaction{ID: nil, TransactionInputs: transactionInputs, TransactionOutputs: transactionOutputs}
 	transaction.ID = transaction.hash()
 	unspentTransactionOutputSet.Blockchain.SignTransaction(&transaction, wallet.PrivateKey)
 
@@ -170,7 +170,7 @@ func (transaction *Transaction) TrimmedCopy() Transaction {
 		outputs = append(outputs, TransactionOutput{Value: transactionOutput.Value, PublicKeyHash: transactionOutput.PublicKeyHash})
 	}
 
-	transactionCopy := Transaction{transaction.ID, inputs, outputs}
+	transactionCopy := Transaction{ID: transaction.ID, TransactionInputs: inputs, TransactionOutputs: outputs}
 
 	return transactionCopy
 }

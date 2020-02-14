@@ -64,7 +64,7 @@ func newKeyPair() (ecdsa.PrivateKey, []byte) {
 
 func NewWallet() *Wallet {
 	privateKey, publicKey := newKeyPair()
-	wallet := Wallet{privateKey, publicKey}
+	wallet := Wallet{PrivateKey: privateKey, PublicKey: publicKey}
 
 	return &wallet
 }

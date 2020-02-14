@@ -17,7 +17,7 @@ func (cli *CLI) getBalance(address, nodeID string) {
 	// TODO: Validate address
 
 	chain := blockchain.NewBlockchain(nodeID)
-	unspentTransactionOutputSet := blockchain.UnspentTransactionOutputSet{chain}
+	unspentTransactionOutputSet := blockchain.UnspentTransactionOutputSet{Blockchain: chain}
 	defer chain.CloseDB()
 
 	balance := 0

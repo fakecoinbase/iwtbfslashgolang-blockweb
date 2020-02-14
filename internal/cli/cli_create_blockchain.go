@@ -16,9 +16,9 @@ func (cli *CLI) createBlockchain(address, nodeID string) {
 	// TODO: Validate address
 
 	chain := blockchain.CreateBlockchain(address, nodeID)
-	chain.CloseDB()
+	defer chain.CloseDB()
 
-	unspentTransactionOutputSet := blockchain.UnspentTransactionOutputSet{chain}
+	unspentTransactionOutputSet := blockchain.UnspentTransactionOutputSet{Blockchain: chain}
 	unspentTransactionOutputSet.Reindex()
 
 	fmt.Println("Done!")

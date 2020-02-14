@@ -130,7 +130,7 @@ func (cli *CLI) Run() {
 	}
 
 	if reindexCmd.Parsed() {
-		cli.reindexUTXO(nodeID)
+		cli.reindexUnspentTransactionOutputSet(nodeID)
 	}
 
 	if sendCmd.Parsed() {

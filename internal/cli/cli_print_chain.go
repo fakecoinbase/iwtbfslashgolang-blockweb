@@ -26,13 +26,14 @@ func (cli *CLI) printChain(nodeID string) {
 		fmt.Printf("Prev. block: %x\n", block.PreviousHash)
 
 		proofOfWork := blockchain.NewProofOfWork(block)
-		fmt.Printf("PoW: %s\n\n", strconv.FormatBool(proofOfWork.Validate()))
+		fmt.Printf("PoW: %s\n", strconv.FormatBool(proofOfWork.Validate()))
 
+		fmt.Println("Transactions:")
 		for _, transaction := range block.Transactions {
-			fmt.Println(transaction)
+			fmt.Printf("\t%x\n", transaction.ID)
 		}
 
-		fmt.Printf("\n\n")
+		fmt.Printf("\n")
 
 		if len(block.PreviousHash) == 0 {
 			break

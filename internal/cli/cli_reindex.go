@@ -12,13 +12,13 @@ import (
 	"github.com/iwtbf/golang-blockweb/internal/blockchain"
 )
 
-func (cli *CLI) reindexUTXO(nodeID string) {
+func (cli *CLI) reindexUnspentTransactionOutputSet(nodeID string) {
 	chain := blockchain.NewBlockchain(nodeID)
-	unspentTransactionOutputSet := blockchain.UnspentTransactionOutputSet{chain}
+	unspentTransactionOutputSet := blockchain.UnspentTransactionOutputSet{Blockchain: chain}
 	unspentTransactionOutputSet.Reindex()
 
 	defer chain.CloseDB()
 
 	amountOfTransactions := unspentTransactionOutputSet.CountTransactions()
-	fmt.Printf("Done! There are %d transactions in the UTXO set.\n", amountOfTransactions)
+	fmt.Printf("Done! There are %d transaction(s) in the UTXO set.\n", amountOfTransactions)
 }
