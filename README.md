@@ -3,6 +3,10 @@ Blockweb
 
 This is an approach to a fully transparent, but highly secure and anonymous blockchain "internet".
 
+[![Travis CI](https://travis-ci.com/iwtbf/golang-blockweb.svg?branch=master)](https://travis-ci.com/iwtbf/golang-blockweb)
+[![Go Report Card](https://goreportcard.com/badge/github.com/iwtbf/golang-blockweb)](https://goreportcard.com/report/github.com/iwtbf/golang-blockweb)
+[![License: Apache 2](https://img.shields.io/badge/License-Apache2-blue.svg)](https://opensource.org/licenses/MIT)
+
 # Why the internet is not enough
 
 > We know that ISPs, governments and big data collection firms just love snooping on and storing our traffic for God-knows-what. Sure, you may not think you care. That is, until you’re surfing information on a personal medical condition or advice on teen pregnancy. Whose business is that? That information is always useful to someone, which is why they want it and keep it. Forever.

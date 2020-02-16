@@ -1,0 +1,19 @@
+language: go
+go:
+  - 1.13.8
+  - release
+  - tip
+
+os:
+  - linux
+  - osx
+  - windows
+
+jobs:
+  include:
+    - stage: Test package
+      script: go test ./pkg
+    - stage: Test internals
+      script: go test ./internal/blockchain ./internal/persistence ./internal/cli
+    - stage: Build CLI
+      script: go build cmd/cli/main.go
