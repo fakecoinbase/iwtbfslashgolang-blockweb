@@ -24,16 +24,16 @@ type Block struct {
 	Height       int
 }
 
-func (b *Block) HashTransactions() []byte {
-	var transactionHashes [][]byte
-	var transactionHash [32]byte
+func (block *Block) HashTransactions() []byte {
+	var transactions [][]byte
 
-	for _, transaction := range b.Transactions {
-		transactionHashes = append(transactionHashes, transaction.ID)
+	for _, transaction := range block.Transactions {
+		transactions = append(transactions, transaction.Serialize())
 	}
-	transactionHash = sha256.Sum256(bytes.Join(transactionHashes, []byte{}))
 
-	return transactionHash[:]
+	merkleTree := NewMerkleTree(transactions)
+
+	return merkleTree.RootNode.Hash
 }
 
 func (block *Block) SetHash() {
