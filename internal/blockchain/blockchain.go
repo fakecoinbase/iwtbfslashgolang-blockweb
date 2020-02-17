@@ -22,8 +22,6 @@ import (
 const dbFile = "golang_blockweb_%s.db"
 const genesisCoinbaseData = "she isn't human; she is art, with a heart."
 
-// const genesisCoinbaseData = "I am a dreamer. Seriously, I'm living on another planet."
-
 type Blockchain struct {
 	tip []byte
 	db  *bolt.DB
