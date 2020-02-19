@@ -1,4 +1,4 @@
-package pkg
+package Int2Hex
 
 /*
  * Copyright 2020 Information Wants To Be Free
@@ -12,6 +12,6 @@ import "strconv"
 /*
  * Convert an int64 to its hexadecimal []byte representation.
  */
-func IntToHex(int int64) []byte {
+func Convert(int int64) []byte {
 	return []byte(strconv.FormatInt(int, 16))
 }

@@ -14,6 +14,23 @@ import (
 	"os"
 )
 
+// TODO: Use a good github package
+var (
+	getBalanceCmd       = flag.NewFlagSet("getbalance", flag.ExitOnError)
+	createBlockchainCmd = flag.NewFlagSet("createblockchain", flag.ExitOnError)
+	createWalletCmd     = flag.NewFlagSet("createwallet", flag.ExitOnError)
+	listAddressesCmd    = flag.NewFlagSet("listaddresses", flag.ExitOnError)
+	reindexCmd          = flag.NewFlagSet("reindex", flag.ExitOnError)
+	sendCmd             = flag.NewFlagSet("send", flag.ExitOnError)
+	printChainCmd       = flag.NewFlagSet("printchain", flag.ExitOnError)
+
+	getBalanceAddress       = getBalanceCmd.String("address", "", "The address to get balance for")
+	createBlockchainAddress = createBlockchainCmd.String("address", "", "The address to send genesis block reward to")
+	sendFrom                = sendCmd.String("from", "", "Source wallet address")
+	sendTo                  = sendCmd.String("to", "", "Destination wallet address")
+	sendAmount              = sendCmd.Int("amount", 0, "Amount to send")
+)
+
 type CLI struct {
 }
 
@@ -24,6 +41,7 @@ func (cli *CLI) validateArgs() {
 	}
 }
 
+// TODO: Use a good github package
 func (cli *CLI) printUsage() {
 	fmt.Println("Usage:")
 	fmt.Println("\tcreateblockchain -address ADDRESS - Create a blockchain and send genesis block reward to ADDRESS")
@@ -44,20 +62,11 @@ func (cli *CLI) Run() {
 		os.Exit(1)
 	}
 
-	getBalanceCmd := flag.NewFlagSet("getbalance", flag.ExitOnError)
-	createBlockchainCmd := flag.NewFlagSet("createblockchain", flag.ExitOnError)
-	createWalletCmd := flag.NewFlagSet("createwallet", flag.ExitOnError)
-	listAddressesCmd := flag.NewFlagSet("listaddresses", flag.ExitOnError)
-	reindexCmd := flag.NewFlagSet("reindex", flag.ExitOnError)
-	sendCmd := flag.NewFlagSet("send", flag.ExitOnError)
-	printChainCmd := flag.NewFlagSet("printchain", flag.ExitOnError)
+	cli.parseArguments()
+	cli.executeCommand(nodeID)
+}
 
-	getBalanceAddress := getBalanceCmd.String("address", "", "The address to get balance for")
-	createBlockchainAddress := createBlockchainCmd.String("address", "", "The address to send genesis block reward to")
-	sendFrom := sendCmd.String("from", "", "Source wallet address")
-	sendTo := sendCmd.String("to", "", "Destination wallet address")
-	sendAmount := sendCmd.Int("amount", 0, "Amount to send")
-
+func (cli *CLI) parseArguments() {
 	switch os.Args[1] {
 	case "getbalance":
 		err := getBalanceCmd.Parse(os.Args[2:])
@@ -98,7 +107,9 @@ func (cli *CLI) Run() {
 		cli.printUsage()
 		os.Exit(1)
 	}
+}
 
+func (cli *CLI) executeCommand(nodeID string) {
 	if getBalanceCmd.Parsed() {
 		if *getBalanceAddress == "" {
 			getBalanceCmd.Usage()

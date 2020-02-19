@@ -10,7 +10,7 @@ package blockchain
 import (
 	"bytes"
 	"crypto/sha256"
-	"github.com/iwtbf/golang-blockweb/pkg"
+	"github.com/iwtbf/golang-blockweb/pkg/Int2Hex"
 	"math"
 	"math/big"
 )
@@ -29,9 +29,9 @@ func (proofOfWork *ProofOfWork) prepareData(nonce int) []byte {
 		[][]byte{
 			proofOfWork.block.PreviousHash,
 			proofOfWork.block.HashTransactions(),
-			pkg.IntToHex(proofOfWork.block.Timestamp),
-			pkg.IntToHex(int64(targetBits)),
-			pkg.IntToHex(int64(nonce)),
+			Int2Hex.Convert(proofOfWork.block.Timestamp),
+			Int2Hex.Convert(int64(targetBits)),
+			Int2Hex.Convert(int64(nonce)),
 		},
 		[]byte{},
 	)

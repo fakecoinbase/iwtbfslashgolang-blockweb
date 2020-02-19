@@ -3,9 +3,11 @@ Blockweb
 
 This is an approach to a fully transparent, but highly secure and anonymous blockchain "internet".
 
-[![Travis CI](https://travis-ci.com/iwtbf/golang-blockweb.svg?branch=master)](https://travis-ci.com/iwtbf/golang-blockweb)
+[![go.mod](https://img.shields.io/github/go-mod/go-version/iwtbf/golang-blockweb?style=flat-square)](https://github.com/iwtbf/golang-blockweb)
+[![Travis CI](https://img.shields.io/travis/com/iwtbf/golang-blockweb?style=flat-square)](https://travis-ci.com/iwtbf/golang-blockweb)
 [![Go Report Card](https://goreportcard.com/badge/github.com/iwtbf/golang-blockweb)](https://goreportcard.com/report/github.com/iwtbf/golang-blockweb)
-[![License: Apache 2](https://img.shields.io/badge/License-Apache2-blue.svg)](https://opensource.org/licenses/MIT)
+[![codecov](https://codecov.io/gh/iwtbf/golang-blockweb/branch/master/graph/badge.svg)](https://codecov.io/gh/iwtbf/golang-blockweb)
+[![License: Apache 2](https://img.shields.io/github/license/iwtbf/golang-blockweb?color=blue&style=flat-square)](https://opensource.org/licenses/MIT)
 
 # Why the internet is not enough
 
@@ -32,6 +34,11 @@ shame to be transparent. Everything belongs to everyone. Sharing is caring.
 ![Golang-Blockweb Blueprint 1](https://imgur.com/wGOG61f.jpg)
 
 *Information wants to be free.*
+
+# Hat Tip
+
+Hat tip up to commit [8b2c1586baf7790267647989858dae2925d79446](https://github.com/iwtbf/golang-blockweb/commit/8b2c1586baf7790267647989858dae2925d79446)
+goes to [@Jeiwan](https://github.com/jeiwan) and his outstanding article ["A blockchain implementation in Go"](https://jeiwan.net/posts/building-blockchain-in-go-part-1/).
 
 # License
 
