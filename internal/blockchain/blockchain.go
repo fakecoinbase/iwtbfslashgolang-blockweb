@@ -31,6 +31,27 @@ func (blockchain *Blockchain) CloseDB() {
 	blockchain.db.Close()
 }
 
+func (blockchain *Blockchain) GetBlock(blockHash []byte) (Block, error) {
+	var block Block
+
+	// TODO: Error handling
+	blockchain.db.View(func(transaction *bolt.Tx) error {
+		bucket := transaction.Bucket([]byte(persistence.BlocksBucket))
+
+		blockData := bucket.Get(blockHash)
+
+		if blockData == nil {
+			return errors.New("Block was not found.")
+		}
+
+		block = *DeserializeBlock(blockData)
+
+		return nil
+	})
+
+	return block, nil
+}
+
 func (blockchain *Blockchain) FindTransaction(ID []byte) (Transaction, error) {
 	blockchainIterator := blockchain.Iterator()
 
@@ -121,6 +142,34 @@ func (blockchain *Blockchain) FindUnspentTransactionOutputs() map[string]Transac
 	return unspentTransactionOutput
 }
 
+func (blockchain *Blockchain) AddBlock(block *Block) {
+	//TODO: Error handling
+	blockchain.db.Update(func(transaction *bolt.Tx) error {
+		bucket := transaction.Bucket([]byte(persistence.BlocksBucket))
+		blockInDb := bucket.Get(block.Hash)
+
+		if blockInDb != nil {
+			return nil
+		}
+
+		blockData := block.Serialize()
+		// TODO: Error handling
+		bucket.Put(block.Hash, blockData)
+
+		lastHash := bucket.Get([]byte(persistence.LastBlockFileNumber))
+		lastBlockData := bucket.Get(lastHash)
+		lastBlock := DeserializeBlock(lastBlockData)
+
+		if block.Height > lastBlock.Height {
+			// TODO: Error handling
+			bucket.Put([]byte(persistence.LastBlockFileNumber), block.Hash)
+			blockchain.tip = block.Hash
+		}
+
+		return nil
+	})
+}
+
 func (blockchain *Blockchain) MineBlock(transactions []*Transaction) *Block {
 	var lastHash []byte
 	var lastHeight int
@@ -134,8 +183,8 @@ func (blockchain *Blockchain) MineBlock(transactions []*Transaction) *Block {
 	}
 
 	// TODO: Error handling
-	blockchain.db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(persistence.BlocksBucket))
+	blockchain.db.View(func(transaction *bolt.Tx) error {
+		bucket := transaction.Bucket([]byte(persistence.BlocksBucket))
 		lastHash = bucket.Get([]byte(persistence.LastBlockFileNumber))
 
 		blockData := bucket.Get(lastHash)
@@ -149,13 +198,13 @@ func (blockchain *Blockchain) MineBlock(transactions []*Transaction) *Block {
 	newBlock := NewBlock(transactions, lastHash, lastHeight+1)
 
 	// TODO: Error handling
-	blockchain.db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(persistence.BlocksBucket))
+	blockchain.db.Update(func(transaction *bolt.Tx) error {
+		bucket := transaction.Bucket([]byte(persistence.BlocksBucket))
 		// TODO: Error handling
 		bucket.Put(newBlock.Hash, newBlock.Serialize())
 
 		// TODO: Error handling
-		bucket.Put([]byte("l"), newBlock.Hash)
+		bucket.Put([]byte(persistence.LastBlockFileNumber), newBlock.Hash)
 
 		blockchain.tip = newBlock.Hash
 
@@ -163,6 +212,38 @@ func (blockchain *Blockchain) MineBlock(transactions []*Transaction) *Block {
 	})
 
 	return newBlock
+}
+
+func (blockchain *Blockchain) GetBestHeight() int {
+	var lastBlock Block
+
+	// TODO: Error handling
+	blockchain.db.View(func(transaction *bolt.Tx) error {
+		bucket := transaction.Bucket([]byte(persistence.BlocksBucket))
+		lastHash := bucket.Get([]byte(persistence.LastBlockFileNumber))
+		blockData := bucket.Get(lastHash)
+		lastBlock = *DeserializeBlock(blockData)
+
+		return nil
+	})
+
+	return lastBlock.Height
+}
+
+func (blockchain *Blockchain) GetBlockHashes() [][]byte {
+	var blockHashes [][]byte
+	blockchainIterator := blockchain.Iterator()
+
+	for {
+		block := blockchainIterator.Next()
+		blockHashes = append(blockHashes, block.Hash)
+
+		if len(block.PreviousHash) == 0 {
+			break
+		}
+	}
+
+	return blockHashes
 }
 
 func CreateBlockchain(address, nodeID string) *Blockchain {
@@ -175,16 +256,16 @@ func CreateBlockchain(address, nodeID string) *Blockchain {
 
 	var tip []byte
 
-	coinbaseTransaction := NewCoinbaseTransaction([]byte(address), genesisCoinbaseData)
+	coinbaseTransaction := NewCoinbaseTransaction([]byte(address))
 	genesisBlock := NewGenesisBlock(coinbaseTransaction)
 
 	// TODO: Error handling
 	db, _ := bolt.Open(dbFile, 0600, nil)
 
 	// TODO: Error handling
-	db.Update(func(tx *bolt.Tx) error {
+	db.Update(func(transaction *bolt.Tx) error {
 		// TODO: Error handling
-		bucket, _ := tx.CreateBucket([]byte(persistence.BlocksBucket))
+		bucket, _ := transaction.CreateBucket([]byte(persistence.BlocksBucket))
 
 		// TODO: Error handling
 		bucket.Put(genesisBlock.Hash, genesisBlock.Serialize())
@@ -212,9 +293,9 @@ func NewBlockchain(nodeID string) *Blockchain {
 	db, _ := bolt.Open(dbFile, 0600, nil)
 
 	// TODO: Error handling
-	db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(persistence.BlocksBucket))
-		tip = bucket.Get([]byte("l"))
+	db.Update(func(transaction *bolt.Tx) error {
+		bucket := transaction.Bucket([]byte(persistence.BlocksBucket))
+		tip = bucket.Get([]byte(persistence.LastBlockFileNumber))
 
 		return nil
 	})

@@ -1,4 +1,4 @@
-package main
+package inventory
 
 /*
  * Copyright 2020 Information Wants To Be Free
@@ -7,8 +7,9 @@ package main
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-import "github.com/iwtbf/golang-blockweb/internal/cli"
+type InventoryType string
 
-func main() {
-	(*cli.NewCli()).Run()
-}
+const (
+	Block       InventoryType = "block"
+	Transaction InventoryType = "transaction"
+)

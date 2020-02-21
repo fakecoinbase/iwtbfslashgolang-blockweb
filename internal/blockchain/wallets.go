@@ -24,7 +24,7 @@ type Wallets struct {
 
 func (wallets *Wallets) CreateWallet() string {
 	wallet := NewWallet()
-	address := fmt.Sprintf("%s", wallet.GetAddress())
+	address := string(wallet.GetAddress()[:])
 
 	wallets.Wallets[address] = wallet
 

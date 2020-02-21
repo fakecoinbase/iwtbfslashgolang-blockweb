@@ -53,19 +53,6 @@ func (cli *CLI) printUsage() {
 	fmt.Println("\tsend -from FROM -to TO -amount AMOUNT - Send AMOUNT of coins from FROM address to TO")
 }
 
-func (cli *CLI) Run() {
-	cli.validateArgs()
-
-	nodeID := os.Getenv("NODE_ID")
-	if nodeID == "" {
-		fmt.Printf("NODE_ID env var is not set!")
-		os.Exit(1)
-	}
-
-	cli.parseArguments()
-	cli.executeCommand(nodeID)
-}
-
 func (cli *CLI) parseArguments() {
 	switch os.Args[1] {
 	case "getbalance":
@@ -152,6 +139,19 @@ func (cli *CLI) executeCommand(nodeID string) {
 
 		cli.send(*sendFrom, *sendTo, *sendAmount, nodeID)
 	}
+}
+
+func (cli *CLI) Run() {
+	cli.validateArgs()
+
+	nodeID := os.Getenv("NODE_ID")
+	if nodeID == "" {
+		fmt.Printf("NODE_ID env var is not set!")
+		os.Exit(1)
+	}
+
+	cli.parseArguments()
+	cli.executeCommand(nodeID)
 }
 
 func NewCli() *CLI {

@@ -15,7 +15,6 @@ import (
 	"crypto/sha256"
 	"encoding/gob"
 	"encoding/hex"
-	"fmt"
 	"log"
 	"math/big"
 )
@@ -35,6 +34,17 @@ func (transaction *Transaction) Serialize() []byte {
 	encoder.Encode(transaction)
 
 	return encoded.Bytes()
+}
+
+// TODO: Use proto buffers
+func DeserializeTransaction(data []byte) *Transaction {
+	var transaction Transaction
+
+	decoder := gob.NewDecoder(bytes.NewReader(data))
+	// TODO: Error handling
+	decoder.Decode(&transaction)
+
+	return &transaction
 }
 
 func (transaction *Transaction) hash() []byte {
@@ -106,16 +116,8 @@ func (transaction *Transaction) Verify(previousTransactions map[string]Transacti
 	return true
 }
 
-func NewCoinbaseTransaction(to []byte, data string) *Transaction {
-	if data == "" {
-		randomData := make([]byte, 20)
-		// TODO: Error handling
-		rand.Read(randomData)
-
-		data = fmt.Sprintf("%x", randomData)
-	}
-
-	transactionInput := TransactionInput{TransactionID: []byte{}, transactionOutputID: -1, Signature: nil, PublicKey: []byte(data)}
+func NewCoinbaseTransaction(to []byte) *Transaction {
+	transactionInput := TransactionInput{TransactionID: []byte{}, transactionOutputID: -1, Signature: nil, PublicKey: []byte(genesisCoinbaseData)}
 	transactionOutput := NewTransactionOutput(50000, to)
 	transaction := Transaction{ID: nil, TransactionInputs: []TransactionInput{transactionInput}, TransactionOutputs: []TransactionOutput{*transactionOutput}}
 	transaction.ID = transaction.hash()
@@ -145,7 +147,7 @@ func NewTransaction(wallet *Wallet, to []byte, amount int, unspentTransactionOut
 		}
 	}
 
-	from := fmt.Sprintf("%s", wallet.GetAddress())
+	from := string(wallet.GetAddress()[:])
 	transactionOutputs = append(transactionOutputs, *NewTransactionOutput(amount, to))
 	if accumulated > amount {
 		transactionOutputs = append(transactionOutputs, *NewTransactionOutput(accumulated-amount, []byte(from))) // a change
