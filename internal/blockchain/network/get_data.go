@@ -12,6 +12,7 @@ import (
 	"encoding/gob"
 	"encoding/hex"
 	"github.com/iwtbf/golang-blockweb/internal/blockchain"
+	"github.com/iwtbf/golang-blockweb/internal/blockchain/network/command"
 	inv "github.com/iwtbf/golang-blockweb/internal/blockchain/network/inventory"
 )
 
@@ -23,7 +24,7 @@ type getData struct {
 
 func sendGetData(address string, kind inv.InventoryType, id []byte) {
 	payload := gobEncode(getData{AddressFrom: nodeAddress, Type: kind, ID: id})
-	request := append(commandToBytes("getdata"), payload...)
+	request := append(commandToBytes(command.GetData), payload...)
 
 	sendData(address, request)
 }

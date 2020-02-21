@@ -7,34 +7,34 @@ package blockchain
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-type MerkleTree struct {
-	RootNode *MerkleNode
+type merkleTree struct {
+	RootNode *merkleNode
 }
 
-func NewMerkleTree(leafes [][]byte) *MerkleTree {
-	var merkleNodes []MerkleNode
+func newMerkleTree(leafes [][]byte) *merkleTree {
+	var merkleNodes []merkleNode
 
 	if len(leafes)%2 != 0 {
 		leafes = append(leafes, leafes[len(leafes)-1])
 	}
 
 	for _, hashes := range leafes {
-		merkleNode := NewMerkleNode(nil, nil, hashes)
+		merkleNode := newMerkleNode(nil, nil, hashes)
 		merkleNodes = append(merkleNodes, *merkleNode)
 	}
 
 	for i := 0; i < len(leafes)/2; i++ {
-		var nextMerkleNodesLevel []MerkleNode
+		var nextMerkleNodesLevel []merkleNode
 
 		for j := 0; j < len(merkleNodes); j += 2 {
-			merkleNode := NewMerkleNode(&merkleNodes[j], &merkleNodes[j+1], nil)
+			merkleNode := newMerkleNode(&merkleNodes[j], &merkleNodes[j+1], nil)
 			nextMerkleNodesLevel = append(nextMerkleNodesLevel, *merkleNode)
 		}
 
 		merkleNodes = nextMerkleNodesLevel
 	}
 
-	merkleTree := MerkleTree{RootNode: &merkleNodes[0]}
+	merkleTree := merkleTree{RootNode: &merkleNodes[0]}
 
 	return &merkleTree
 }

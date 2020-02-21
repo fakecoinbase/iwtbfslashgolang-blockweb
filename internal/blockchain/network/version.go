@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"github.com/iwtbf/golang-blockweb/internal/blockchain"
+	"github.com/iwtbf/golang-blockweb/internal/blockchain/network/command"
 )
 
 type version struct {
@@ -22,7 +23,7 @@ type version struct {
 func sendVersion(address string, chain *blockchain.Blockchain) {
 	bestHeight := chain.GetBestHeight()
 	payload := gobEncode(version{Version: nodeVersion, BestHeight: bestHeight, AddressFrom: nodeAddress})
-	request := append(commandToBytes("version"), payload...)
+	request := append(commandToBytes(command.Version), payload...)
 
 	sendData(address, request)
 }

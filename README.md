@@ -37,7 +37,7 @@ shame to be transparent. Everything belongs to everyone. Sharing is caring.
 
 # Hat Tip
 
-Hat tip up to commit [8b2c1586baf7790267647989858dae2925d79446](https://github.com/iwtbf/golang-blockweb/commit/8b2c1586baf7790267647989858dae2925d79446)
+Hat tip up to commit [047ad1627abe63410a42c54e4f2901c381000933](https://github.com/iwtbf/golang-blockweb/commit/047ad1627abe63410a42c54e4f2901c381000933)
 goes to [@Jeiwan](https://github.com/jeiwan) and his outstanding article ["A blockchain implementation in Go"](https://jeiwan.net/posts/building-blockchain-in-go-part-1/).
 
 # License

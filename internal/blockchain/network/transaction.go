@@ -13,6 +13,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/iwtbf/golang-blockweb/internal/blockchain"
+	"github.com/iwtbf/golang-blockweb/internal/blockchain/network/command"
 	inv "github.com/iwtbf/golang-blockweb/internal/blockchain/network/inventory"
 )
 
@@ -24,7 +25,7 @@ type transaction struct {
 func sendTransaction(address string, blockchainTransaction *blockchain.Transaction) {
 	data := transaction{AddressFrom: nodeAddress, Transaction: blockchainTransaction.Serialize()}
 	payload := gobEncode(data)
-	request := append(commandToBytes("tx"), payload...)
+	request := append(commandToBytes(command.Transaction), payload...)
 
 	sendData(address, request)
 }

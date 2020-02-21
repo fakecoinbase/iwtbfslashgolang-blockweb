@@ -10,6 +10,6 @@ package persistence
 type BucketType string
 
 const (
-	BlocksBucket BucketType = "blocks"
+	BlocksBucket     BucketType = "blocks"
 	ChainstateBucket BucketType = "chainstate"
 )

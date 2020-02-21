@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
+	"github.com/iwtbf/golang-blockweb/internal/blockchain/network/command"
 )
 
 type address struct {
@@ -21,7 +22,7 @@ func sendAddress(newAddress string) {
 	nodes := address{AddressList: knownNodes}
 	nodes.AddressList = append(nodes.AddressList, nodeAddress)
 	payload := gobEncode(nodes)
-	request := append(commandToBytes("addr"), payload...)
+	request := append(commandToBytes(command.Address), payload...)
 
 	sendData(newAddress, request)
 }

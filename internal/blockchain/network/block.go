@@ -12,6 +12,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"github.com/iwtbf/golang-blockweb/internal/blockchain"
+	"github.com/iwtbf/golang-blockweb/internal/blockchain/network/command"
 	inv "github.com/iwtbf/golang-blockweb/internal/blockchain/network/inventory"
 )
 
@@ -29,7 +30,7 @@ func requestBlocks() {
 func sendBlock(addr string, blockchainBlock *blockchain.Block) {
 	data := block{AddressFrom: nodeAddress, Block: blockchainBlock.Serialize()}
 	payload := gobEncode(data)
-	request := append(commandToBytes("block"), payload...)
+	request := append(commandToBytes(command.Block), payload...)
 
 	sendData(addr, request)
 }

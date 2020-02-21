@@ -14,7 +14,7 @@ import (
 
 func (cli *CLI) listAddresses(nodeID string) {
 	// TODO: Error handling
-	wallets, _ := blockchain.NewWallets(nodeID )
+	wallets, _ := blockchain.NewWallets(nodeID)
 	addresses := wallets.GetAddresses()
 
 	for _, address := range addresses {

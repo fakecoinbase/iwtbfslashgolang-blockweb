@@ -19,12 +19,12 @@ const targetBits = 24
 const maxNonce = math.MaxInt64
 
 // TODO: Followed the tutorial, but proof of stake might be more applicable
-type ProofOfWork struct {
+type proofOfWork struct {
 	block  *Block
 	target *big.Int
 }
 
-func (proofOfWork *ProofOfWork) prepareData(nonce int) []byte {
+func (proofOfWork *proofOfWork) prepareData(nonce int) []byte {
 	data := bytes.Join(
 		[][]byte{
 			proofOfWork.block.PreviousHash,
@@ -39,7 +39,7 @@ func (proofOfWork *ProofOfWork) prepareData(nonce int) []byte {
 	return data
 }
 
-func (proofOfWork *ProofOfWork) Run() (int, []byte) {
+func (proofOfWork *proofOfWork) run() (int, []byte) {
 	var hashInt big.Int
 	var hash [32]byte
 	nonce := 0
@@ -59,7 +59,7 @@ func (proofOfWork *ProofOfWork) Run() (int, []byte) {
 	return nonce, hash[:]
 }
 
-func (proofOfWork *ProofOfWork) Validate() bool {
+func (proofOfWork *proofOfWork) Validate() bool {
 	var hashInt big.Int
 
 	data := proofOfWork.prepareData(proofOfWork.block.Nonce)
@@ -71,11 +71,11 @@ func (proofOfWork *ProofOfWork) Validate() bool {
 	return isValid
 }
 
-func NewProofOfWork(block *Block) *ProofOfWork {
+func NewProofOfWork(block *Block) *proofOfWork {
 	target := big.NewInt(1)
 	target.Lsh(target, uint(256-targetBits))
 
-	proofOfWork := &ProofOfWork{block: block, target: target}
+	proofOfWork := &proofOfWork{block: block, target: target}
 
 	return proofOfWork
 }

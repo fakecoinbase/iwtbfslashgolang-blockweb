@@ -1,11 +1,5 @@
 package network
 
-import (
-	"bytes"
-	"encoding/gob"
-	"github.com/iwtbf/golang-blockweb/internal/blockchain"
-)
-
 /*
  * Copyright 2020 Information Wants To Be Free
  * Visit: https://github.com/iwtbf
@@ -13,13 +7,20 @@ import (
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
+import (
+	"bytes"
+	"encoding/gob"
+	"github.com/iwtbf/golang-blockweb/internal/blockchain"
+	"github.com/iwtbf/golang-blockweb/internal/blockchain/network/command"
+)
+
 type getBlocks struct {
 	AddressFrom string
 }
 
 func sendGetBlocks(address string) {
 	payload := gobEncode(getBlocks{AddressFrom: nodeAddress})
-	request := append(commandToBytes("getblocks"), payload...)
+	request := append(commandToBytes(command.GetBlocks), payload...)
 
 	sendData(address, request)
 }

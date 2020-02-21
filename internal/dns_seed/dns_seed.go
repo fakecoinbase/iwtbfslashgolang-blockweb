@@ -1,12 +1,5 @@
 package dns_seed
 
-import (
-	"fmt"
-	"net"
-	"google.golang.org/grpc"
-	"github.com/golang/protobuf/proto"
-)
-
 /*
  * Copyright 2020 Information Wants To Be Free
  * Visit: https://github.com/iwtbf

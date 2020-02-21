@@ -13,6 +13,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/iwtbf/golang-blockweb/internal/blockchain"
+	"github.com/iwtbf/golang-blockweb/internal/blockchain/network/command"
 	inv "github.com/iwtbf/golang-blockweb/internal/blockchain/network/inventory"
 )
 
@@ -25,7 +26,7 @@ type inventory struct {
 func sendInventory(address string, kind inv.InventoryType, items [][]byte) {
 	inventory := inventory{AddressFrom: nodeAddress, Type: kind, Items: items}
 	payload := gobEncode(inventory)
-	request := append(commandToBytes("inv"), payload...)
+	request := append(commandToBytes(command.Inventory), payload...)
 
 	sendData(address, request)
 }
@@ -45,7 +46,7 @@ func handleInventory(request []byte, chain *blockchain.Blockchain) {
 		blocksInTransit = payload.Items
 
 		blockHash := payload.Items[0]
-		sendGetData(payload.AddressFrom, "block", blockHash)
+		sendGetData(payload.AddressFrom, inv.Block, blockHash)
 
 		newBlocksInTransit := [][]byte{}
 		for _, block := range blocksInTransit {

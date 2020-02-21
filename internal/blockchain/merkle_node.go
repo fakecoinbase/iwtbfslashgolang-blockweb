@@ -9,14 +9,14 @@ package blockchain
 
 import "crypto/sha256"
 
-type MerkleNode struct {
-	Left  *MerkleNode
-	Right *MerkleNode
+type merkleNode struct {
+	Left  *merkleNode
+	Right *merkleNode
 	Hash  []byte
 }
 
-func NewMerkleNode(left, right *MerkleNode, hash []byte) *MerkleNode {
-	merkleNode := MerkleNode{}
+func newMerkleNode(left, right *merkleNode, hash []byte) *merkleNode {
+	merkleNode := merkleNode{}
 
 	if left == nil && right == nil {
 		hash := sha256.Sum256(hash)

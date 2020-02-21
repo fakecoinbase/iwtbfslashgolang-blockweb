@@ -31,7 +31,7 @@ func (block *Block) HashTransactions() []byte {
 		transactions = append(transactions, transaction.Serialize())
 	}
 
-	merkleTree := NewMerkleTree(transactions)
+	merkleTree := newMerkleTree(transactions)
 
 	return merkleTree.RootNode.Hash
 }
@@ -71,7 +71,7 @@ func DeserializeBlock(data []byte) *Block {
 func NewBlock(transactions []*Transaction, previousHash []byte, height int) *Block {
 	block := &Block{Timestamp: time.Now().Unix(), Transactions: transactions, PreviousHash: previousHash, Hash: []byte{}, Nonce: 0, Height: height}
 	pow := NewProofOfWork(block)
-	nonce, hash := pow.Run()
+	nonce, hash := pow.run()
 
 	block.Hash = hash[:]
 	block.Nonce = nonce

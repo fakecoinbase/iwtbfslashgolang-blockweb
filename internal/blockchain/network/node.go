@@ -12,6 +12,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"github.com/iwtbf/golang-blockweb/internal/blockchain"
+	cmd "github.com/iwtbf/golang-blockweb/internal/blockchain/network/command"
 	"io"
 	"io/ioutil"
 	"net"
@@ -35,19 +36,19 @@ func handleConnection(conn net.Conn, chain *blockchain.Blockchain) {
 	fmt.Printf("Received %s command\n", command)
 
 	switch command {
-	case "addr":
+	case cmd.Address:
 		handleAddress(request)
-	case "block":
+	case cmd.Block:
 		handleBlock(request, chain)
-	case "inv":
+	case cmd.Inventory:
 		handleInventory(request, chain)
-	case "getblocks":
+	case cmd.GetBlocks:
 		handleGetBlocks(request, chain)
-	case "getdata":
+	case cmd.GetData:
 		handleGetData(request, chain)
-	case "tx":
+	case cmd.Transaction:
 		handleTransaction(request, chain)
-	case "version":
+	case cmd.Version:
 		handleVersion(request, chain)
 	default:
 		fmt.Println("Unknown command!")
@@ -78,7 +79,7 @@ func sendData(address string, data []byte) {
 	io.Copy(conn, bytes.NewReader(data))
 }
 
-func commandToBytes(command string) []byte {
+func commandToBytes(command cmd.Command) []byte {
 	var bytes [commandLength]byte
 
 	for iterator, char := range command {
@@ -88,7 +89,7 @@ func commandToBytes(command string) []byte {
 	return bytes[:]
 }
 
-func bytesToCommand(bytes []byte) string {
+func bytesToCommand(bytes []byte) cmd.Command {
 	var command []byte
 
 	for _, b := range bytes {
@@ -97,7 +98,7 @@ func bytesToCommand(bytes []byte) string {
 		}
 	}
 
-	return string(command[:])
+	return cmd.Command(string(command[:]))
 }
 
 func gobEncode(data interface{}) []byte {
