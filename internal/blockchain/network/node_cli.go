@@ -16,6 +16,9 @@ import (
 
 // TODO: Use a good github package
 var (
+	usage = `Usage:
+	startnode -miner ADDRESS - Start a node named according to environment variable NODE_ID -miner enables mining`
+
 	startNodeCmd = flag.NewFlagSet("startnode", flag.ExitOnError)
 
 	startNodeMiner = startNodeCmd.String("miner", "", "Enable mining mode and send reward to ADDRESS")
@@ -33,8 +36,7 @@ func (nodeCLI *NodeCLI) validateArgs() {
 
 // TODO: Use a good github package
 func (nodeCLI *NodeCLI) printUsage() {
-	fmt.Println("Usage:")
-	fmt.Println("\tstartnode -miner ADDRESS - Start a node named according to environment variable NODE_ID -miner enables mining")
+	fmt.Println(usage)
 }
 
 func (nodeCLI *NodeCLI) parseArguments() {
@@ -52,12 +54,7 @@ func (nodeCLI *NodeCLI) parseArguments() {
 
 func (nodeCLI *NodeCLI) executeCommand(nodeID string) {
 	if startNodeCmd.Parsed() {
-		if *startNodeMiner == "" {
-			startNodeCmd.Usage()
-			os.Exit(1)
-		}
-
-		nodeCLI.startNode(*startNodeMiner, nodeID)
+		nodeCLI.startNode(nodeID, *startNodeMiner)
 	}
 }
 

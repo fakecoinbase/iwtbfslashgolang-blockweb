@@ -47,7 +47,6 @@ func handleBlock(request []byte, chain *blockchain.Blockchain) {
 	blockData := payload.Block
 	block := blockchain.DeserializeBlock(blockData)
 
-	fmt.Println("Recevied a new block!")
 	chain.AddBlock(block)
 
 	fmt.Printf("Added block %x\n", block.Hash)

@@ -10,10 +10,15 @@ package cli
 import (
 	"fmt"
 	"github.com/iwtbf/golang-blockweb/internal/blockchain"
+	"log"
 )
 
 func (cli *CLI) send(from, to string, amount int, nodeID string) {
 	// TODO: Validate addresses
+
+	if from == to {
+		log.Panic("You cannot send data to yourself!")
+	}
 
 	chain := blockchain.NewBlockchain(nodeID)
 	unspentTransactionOutputSet := blockchain.UnspentTransactionOutputSet{Blockchain: chain}

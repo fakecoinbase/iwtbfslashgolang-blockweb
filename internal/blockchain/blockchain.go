@@ -178,7 +178,7 @@ func (blockchain *Blockchain) MineBlock(transactions []*Transaction) *Block {
 		// TODO: Ignore transaction if it's not valid
 
 		if blockchain.VerifyTransaction(transaction) != true {
-			log.Panic("ERROR: Invalid transaction")
+			log.Panic("Invalid transaction")
 		}
 	}
 
@@ -293,14 +293,14 @@ func NewBlockchain(nodeID string) *Blockchain {
 	db, _ := bolt.Open(dbFile, 0600, nil)
 
 	// TODO: Error handling
-	db.Update(func(transaction *bolt.Tx) error {
+	db.View(func(transaction *bolt.Tx) error {
 		bucket := transaction.Bucket([]byte(persistence.BlocksBucket))
 		tip = bucket.Get([]byte(persistence.LastBlockFileNumber))
 
 		return nil
 	})
 
-	return &Blockchain{tip, db}
+	return &Blockchain{tip: tip, db: db}
 }
 
 func dbExists(dbFile string) bool {

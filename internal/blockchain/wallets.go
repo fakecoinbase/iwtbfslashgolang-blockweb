@@ -13,6 +13,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -42,7 +43,13 @@ func (wallets *Wallets) GetAddresses() []string {
 }
 
 func (wallets Wallets) GetWallet(address string) Wallet {
-	return *wallets.Wallets[address]
+	wallet := wallets.Wallets[address]
+
+	if wallet == nil {
+		log.Panic("Address not found in your wallet")
+	}
+
+	return *wallet
 }
 
 func NewWallets(nodeID string) (*Wallets, error) {

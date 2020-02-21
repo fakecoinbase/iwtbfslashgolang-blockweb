@@ -59,6 +59,7 @@ func handleConnection(conn net.Conn, chain *blockchain.Blockchain) {
 
 func sendData(address string, data []byte) {
 	conn, err := net.Dial(protocol, address)
+
 	if err != nil {
 		fmt.Printf("%s is not available\n", address)
 		var updatedNodes []string
@@ -71,8 +72,11 @@ func sendData(address string, data []byte) {
 
 		knownNodes = updatedNodes
 
+		// TODO: Check if last node was removed
+
 		return
 	}
+
 	defer conn.Close()
 
 	// TODO: Error handling
@@ -102,13 +106,13 @@ func bytesToCommand(bytes []byte) cmd.Command {
 }
 
 func gobEncode(data interface{}) []byte {
-	var buff bytes.Buffer
+	var buffer bytes.Buffer
 
-	encoder := gob.NewEncoder(&buff)
+	encoder := gob.NewEncoder(&buffer)
 	// TODO: Error handling
 	encoder.Encode(data)
 
-	return buff.Bytes()
+	return buffer.Bytes()
 }
 
 func bootNode(nodeID, minerAddress string) {

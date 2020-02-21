@@ -20,6 +20,11 @@ type UnspentTransactionOutputSet struct {
 func (unspentTransactionOutputSet UnspentTransactionOutputSet) FindSpendableOutputs(publicKeyHash []byte, amount int) (int, map[string][]int) {
 	spendableOutputs := make(map[string][]int)
 	accumulated := 0
+
+	if amount <= 0 {
+		return accumulated, spendableOutputs
+	}
+
 	db := unspentTransactionOutputSet.Blockchain.db
 
 	// TODO: Error handling
@@ -32,7 +37,7 @@ func (unspentTransactionOutputSet UnspentTransactionOutputSet) FindSpendableOutp
 			transactionOutputSet := NewTransactionOutputSet(value)
 
 			for outputIterator, transactionOutput := range transactionOutputSet.TransactionOutputs {
-				if transactionOutput.IsLockedWithKey(publicKeyHash) && accumulated < amount {
+				if transactionOutput.IsLockedWithKey(publicKeyHash) {
 					accumulated += transactionOutput.Value
 					spendableOutputs[transactionID] = append(spendableOutputs[transactionID], outputIterator)
 				}

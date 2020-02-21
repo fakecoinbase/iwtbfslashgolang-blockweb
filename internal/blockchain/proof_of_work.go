@@ -15,7 +15,7 @@ import (
 	"math/big"
 )
 
-const targetBits = 24
+const targetBits = 2
 const maxNonce = math.MaxInt64
 
 // TODO: Followed the tutorial, but proof of stake might be more applicable

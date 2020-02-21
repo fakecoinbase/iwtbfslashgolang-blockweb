@@ -40,7 +40,7 @@ func handleGetData(request []byte, chain *blockchain.Blockchain) {
 
 	if payload.Type == inv.Block {
 		// TODO: Error handling
-		block, _ := chain.GetBlock([]byte(payload.ID))
+		block, _ := chain.GetBlock(payload.ID)
 
 		sendBlock(payload.AddressFrom, &block)
 	}

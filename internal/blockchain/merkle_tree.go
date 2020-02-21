@@ -11,24 +11,28 @@ type merkleTree struct {
 	RootNode *merkleNode
 }
 
-func newMerkleTree(leafes [][]byte) *merkleTree {
+func newMerkleTree(data [][]byte) *merkleTree {
 	var merkleNodes []merkleNode
 
-	if len(leafes)%2 != 0 {
-		leafes = append(leafes, leafes[len(leafes)-1])
+	if len(data)%2 != 0 {
+		data = append(data, data[len(data)-1])
 	}
 
-	for _, hashes := range leafes {
-		merkleNode := newMerkleNode(nil, nil, hashes)
+	for _, datum := range data {
+		merkleNode := newMerkleNode(nil, nil, datum)
 		merkleNodes = append(merkleNodes, *merkleNode)
 	}
 
-	for i := 0; i < len(leafes)/2; i++ {
+TreeNode:
+	for {
 		var nextMerkleNodesLevel []merkleNode
 
 		for j := 0; j < len(merkleNodes); j += 2 {
-			merkleNode := newMerkleNode(&merkleNodes[j], &merkleNodes[j+1], nil)
-			nextMerkleNodesLevel = append(nextMerkleNodesLevel, *merkleNode)
+			if len(merkleNodes) == 1 {
+				break TreeNode
+			}
+			node := newMerkleNode(&merkleNodes[j], &merkleNodes[j+1], nil)
+			nextMerkleNodesLevel = append(nextMerkleNodesLevel, *node)
 		}
 
 		merkleNodes = nextMerkleNodesLevel

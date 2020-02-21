@@ -134,7 +134,7 @@ func NewTransaction(wallet *Wallet, to []byte, amount int, unspentTransactionOut
 
 	if accumulated < amount {
 		// TODO: Not enough balance
-		log.Panic("ERROR: Not enough funds")
+		log.Panic("Not enough funds")
 	}
 
 	for outputIDIterator, spendableOutputIDs := range spendableOutputs {

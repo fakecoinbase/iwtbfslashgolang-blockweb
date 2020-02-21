@@ -12,6 +12,7 @@ import (
 	"encoding/gob"
 	"github.com/iwtbf/golang-blockweb/internal/blockchain"
 	"github.com/iwtbf/golang-blockweb/internal/blockchain/network/command"
+	"github.com/iwtbf/golang-blockweb/internal/blockchain/network/inventory"
 )
 
 type getBlocks struct {
@@ -35,5 +36,5 @@ func handleGetBlocks(request []byte, chain *blockchain.Blockchain) {
 	decoder.Decode(&payload)
 
 	blockHashes := chain.GetBlockHashes()
-	sendInventory(payload.AddressFrom, "block", blockHashes)
+	sendInventory(payload.AddressFrom, inventory.Block, blockHashes)
 }

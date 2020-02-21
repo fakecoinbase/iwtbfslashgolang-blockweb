@@ -21,8 +21,7 @@ type version struct {
 }
 
 func sendVersion(address string, chain *blockchain.Blockchain) {
-	bestHeight := chain.GetBestHeight()
-	payload := gobEncode(version{Version: nodeVersion, BestHeight: bestHeight, AddressFrom: nodeAddress})
+	payload := gobEncode(version{Version: nodeVersion, BestHeight: chain.GetBestHeight(), AddressFrom: nodeAddress})
 	request := append(commandToBytes(command.Version), payload...)
 
 	sendData(address, request)

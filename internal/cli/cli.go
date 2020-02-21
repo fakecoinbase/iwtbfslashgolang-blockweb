@@ -16,6 +16,15 @@ import (
 
 // TODO: Use a good github package
 var (
+	usage = `Usage:
+	createblockchain -address ADDRESS - Create a blockchain and send genesis block reward to ADDRESS
+	createwallet - Generates a new key-pair and saves it into the wallet file
+	getbalance -address ADDRESS - Get balance of ADDRESS
+	listaddresses - Lists all addresses from the wallet file
+	reindex - Rebuilds the UnspentTransactionOutputSet
+	printchain - Print all the blocks of the blockchain
+	send -from FROM -to TO -amount AMOUNT - Send AMOUNT of coins from FROM address to TO`
+
 	getBalanceCmd       = flag.NewFlagSet("getbalance", flag.ExitOnError)
 	createBlockchainCmd = flag.NewFlagSet("createblockchain", flag.ExitOnError)
 	createWalletCmd     = flag.NewFlagSet("createwallet", flag.ExitOnError)
@@ -43,14 +52,7 @@ func (cli *CLI) validateArgs() {
 
 // TODO: Use a good github package
 func (cli *CLI) printUsage() {
-	fmt.Println("Usage:")
-	fmt.Println("\tcreateblockchain -address ADDRESS - Create a blockchain and send genesis block reward to ADDRESS")
-	fmt.Println("\tcreatewallet - Generates a new key-pair and saves it into the wallet file")
-	fmt.Println("\tgetbalance -address ADDRESS - Get balance of ADDRESS")
-	fmt.Println("\tlistaddresses - Lists all addresses from the wallet file")
-	fmt.Println("\treindex - Rebuilds the UnspentTransactionOutputSet")
-	fmt.Println("\tprintchain - Print all the blocks of the blockchain")
-	fmt.Println("\tsend -from FROM -to TO -amount AMOUNT - Send AMOUNT of coins from FROM address to TO")
+	fmt.Println(usage)
 }
 
 func (cli *CLI) parseArguments() {
