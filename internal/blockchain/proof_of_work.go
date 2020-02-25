@@ -15,8 +15,10 @@ import (
 	"math/big"
 )
 
-const targetBits = 2
-const maxNonce = math.MaxInt64
+const (
+	targetBits = 2
+	maxNonce   = math.MaxInt64
+)
 
 // TODO: Followed the tutorial, but proof of stake might be more applicable
 type proofOfWork struct {

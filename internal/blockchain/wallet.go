@@ -16,9 +16,10 @@ import (
 	"golang.org/x/crypto/ripemd160"
 )
 
-const AddressChecksumLength = 4
-
-const version = byte(0x00)
+const (
+	version               = byte(0x00)
+	AddressChecksumLength = 4
+)
 
 type Wallet struct {
 	PrivateKey ecdsa.PrivateKey

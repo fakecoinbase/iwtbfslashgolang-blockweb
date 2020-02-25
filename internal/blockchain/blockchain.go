@@ -19,8 +19,10 @@ import (
 	"os"
 )
 
-const dbFile = "golang_blockweb_%s.db"
-const genesisCoinbaseData = "she isn't human; she is art, with a heart."
+const (
+	dbFile              = "golang_blockweb_%s.db"
+	genesisCoinbaseData = "she isn't human; she is art, with a heart."
+)
 
 type Blockchain struct {
 	tip []byte
@@ -246,7 +248,7 @@ func (blockchain *Blockchain) GetBlockHashes() [][]byte {
 	return blockHashes
 }
 
-func CreateBlockchain(address, nodeID string) *Blockchain {
+func CreateBlockchain(nodeID string) *Blockchain {
 	dbFile := fmt.Sprintf(dbFile, nodeID)
 	if dbExists(dbFile) {
 		// TODO: Maybe use log.panic
@@ -256,7 +258,7 @@ func CreateBlockchain(address, nodeID string) *Blockchain {
 
 	var tip []byte
 
-	coinbaseTransaction := NewCoinbaseTransaction([]byte(address))
+	coinbaseTransaction := NewCoinbaseTransaction()
 	genesisBlock := NewGenesisBlock(coinbaseTransaction)
 
 	// TODO: Error handling
@@ -283,9 +285,7 @@ func CreateBlockchain(address, nodeID string) *Blockchain {
 func NewBlockchain(nodeID string) *Blockchain {
 	dbFile := fmt.Sprintf(dbFile, nodeID)
 	if dbExists(dbFile) == false {
-		// TODO: Maybe use log.panic
-		fmt.Println("No existing Blockchain found. Create one first.")
-		os.Exit(1)
+		CreateBlockchain(nodeID)
 	}
 
 	var tip []byte

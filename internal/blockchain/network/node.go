@@ -18,15 +18,19 @@ import (
 	"net"
 )
 
-const protocol = "tcp"
-const nodeVersion = 1
-const commandLength = 12
+const (
+	protocol      = "tcp"
+	nodeVersion   = 1
+	commandLength = 12
+)
 
-var nodeAddress string
-var miningAddress string
-var knownNodes = []string{"localhost:3000"}
-var blocksInTransit = [][]byte{}
-var mempool = make(map[string]blockchain.Transaction)
+var (
+	nodeAddress     string
+	miningAddress   string
+	knownNodes      = []string{"localhost:3000"}
+	blocksInTransit = [][]byte{}
+	mempool         = make(map[string]blockchain.Transaction)
+)
 
 func bootNode(nodeID, minerAddress string) {
 	fmt.Printf("Starting node %s\n", nodeID)

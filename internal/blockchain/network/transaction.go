@@ -66,7 +66,8 @@ func handleTransaction(request []byte, chain *blockchain.Blockchain) {
 				return
 			}
 
-			coinbaseTransaction := blockchain.NewCoinbaseTransaction([]byte(miningAddress))
+			// TODO: Why do we need a coinbase transaction?
+			coinbaseTransaction := blockchain.NewCoinbaseTransaction()
 			transactions = append(transactions, coinbaseTransaction)
 
 			newBlock := chain.MineBlock(transactions)
@@ -77,8 +78,8 @@ func handleTransaction(request []byte, chain *blockchain.Blockchain) {
 			fmt.Println("New block is mined!")
 
 			for _, transaction := range transactions {
-				txID := hex.EncodeToString(transaction.ID)
-				delete(mempool, txID)
+				hexTransactionID := hex.EncodeToString(transaction.ID)
+				delete(mempool, hexTransactionID)
 			}
 
 			for _, knownNode := range knownNodes {
