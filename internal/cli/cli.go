@@ -33,11 +33,10 @@ var (
 	sendCmd             = flag.NewFlagSet("send", flag.ExitOnError)
 	printChainCmd       = flag.NewFlagSet("printchain", flag.ExitOnError)
 
-	getBalanceAddress       = getBalanceCmd.String("address", "", "The address to get balance for")
-	createBlockchainAddress = createBlockchainCmd.String("address", "", "The address to send genesis block reward to")
-	sendFrom                = sendCmd.String("from", "", "Source wallet address")
-	sendTo                  = sendCmd.String("to", "", "Destination wallet address")
-	sendAmount              = sendCmd.Int("amount", 0, "Amount to send")
+	getBalanceAddress = getBalanceCmd.String("address", "", "The address to get balance for")
+	sendFrom          = sendCmd.String("from", "", "Source wallet address")
+	sendTo            = sendCmd.String("to", "", "Destination wallet address")
+	sendAmount        = sendCmd.Int("amount", 0, "Amount to send")
 )
 
 type CLI struct {
@@ -109,12 +108,7 @@ func (cli *CLI) executeCommand(nodeID string) {
 	}
 
 	if createBlockchainCmd.Parsed() {
-		if *createBlockchainAddress == "" {
-			createBlockchainCmd.Usage()
-			os.Exit(1)
-		}
-
-		cli.createBlockchain(*createBlockchainAddress, nodeID)
+		cli.createBlockchain(nodeID)
 	}
 
 	if createWalletCmd.Parsed() {

@@ -12,10 +12,10 @@ import (
 	"github.com/iwtbf/golang-blockweb/internal/blockchain"
 )
 
-func (cli *CLI) createBlockchain(address, nodeID string) {
+func (cli *CLI) createBlockchain(nodeID string) {
 	// TODO: Validate address
 
-	chain := blockchain.CreateBlockchain(address, nodeID)
+	chain := blockchain.CreateBlockchain(nodeID)
 	defer chain.CloseDB()
 
 	unspentTransactionOutputSet := blockchain.UnspentTransactionOutputSet{Blockchain: chain}

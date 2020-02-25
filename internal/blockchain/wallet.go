@@ -12,6 +12,8 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/x509"
+	"fmt"
 	"github.com/btcsuite/btcutil/base58"
 	"golang.org/x/crypto/ripemd160"
 )
@@ -60,11 +62,20 @@ func newKeyPair() (ecdsa.PrivateKey, []byte) {
 	privateKey, _ := ecdsa.GenerateKey(curve, rand.Reader)
 	publicKey := append(privateKey.PublicKey.X.Bytes(), privateKey.PublicKey.Y.Bytes()...)
 
+	// TODO: Add flag to cli
+	flag := false
+	if flag {
+		// TODO: Error handling
+		pkcs8Formatted, _ := x509.MarshalPKCS8PrivateKey(privateKey)
+		fmt.Printf("PKCS8 Key:\n%s\n", string(pkcs8Formatted))
+	}
+
 	return *privateKey, publicKey
 }
 
 func NewWallet() *Wallet {
 	privateKey, publicKey := newKeyPair()
+
 	wallet := Wallet{PrivateKey: privateKey, PublicKey: publicKey}
 
 	return &wallet
