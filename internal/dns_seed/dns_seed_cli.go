@@ -8,63 +8,21 @@ package dns_seed
  */
 
 import (
-	"flag"
-	"fmt"
-	"log"
-	"os"
+	"github.com/alecthomas/kong"
 )
 
-// TODO: Use a good github package
-var (
-	usage = `Usage:
-	start -port PORT - Start a DNS seed listening on PORT (default 10000)`
-
-	startCmd = flag.NewFlagSet("start", flag.ExitOnError)
-
-	port = startCmd.Int("port", 10000, "The server port")
-)
-
-type DNSSeedCLI struct {
+type startDnsSeedCmd struct {
+	Port  int16  `help:"The servers listening Port." default:"10000"`
+	Level string `help:"One of github.com/ipfs/go-log#LogLevel." default:"INFO"`
 }
 
-func (dnsSeedCLI *DNSSeedCLI) validateArgs() {
-	if len(os.Args) < 2 {
-		dnsSeedCLI.printUsage()
-		os.Exit(1)
-	}
+var dnsSeedCli struct {
+	Start startDnsSeedCmd `cmd help:"Start a DNS seed server."`
 }
 
-// TODO: Use a good github package
-func (dnsSeedCLI *DNSSeedCLI) printUsage() {
-	fmt.Println(usage)
-}
+func Run() {
+	context := kong.Parse(&dnsSeedCli)
 
-func (dnsSeedCLI *DNSSeedCLI) parseArguments() {
-	switch os.Args[1] {
-	case "start":
-		err := startCmd.Parse(os.Args[2:])
-		if err != nil {
-			log.Panic(err)
-		}
-	default:
-		dnsSeedCLI.printUsage()
-		os.Exit(1)
-	}
-}
-
-func (dnsSeedCLI *DNSSeedCLI) executeCommand() {
-	if startCmd.Parsed() {
-		dnsSeedCLI.startDNSSeed(*port)
-	}
-}
-
-func (dnsSeedCLI *DNSSeedCLI) Run() {
-	dnsSeedCLI.validateArgs()
-
-	dnsSeedCLI.parseArguments()
-	dnsSeedCLI.executeCommand()
-}
-
-func NewDNSSeedCLI() *DNSSeedCLI {
-	return &DNSSeedCLI{}
+	err := context.Run()
+	context.FatalIfErrorf(err)
 }

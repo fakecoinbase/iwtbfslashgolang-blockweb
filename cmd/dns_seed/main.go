@@ -10,5 +10,5 @@ package main
 import dnsSeed "github.com/iwtbf/golang-blockweb/internal/dns_seed"
 
 func main() {
-	(*dnsSeed.NewDNSSeedCLI()).Run()
+	dnsSeed.Run()
 }

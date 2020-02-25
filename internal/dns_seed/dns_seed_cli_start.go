@@ -7,6 +7,19 @@ package dns_seed
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-func (dnsSeedCLI *DNSSeedCLI) startDNSSeed(port int) {
-	bootDNSSeed(port)
+import "github.com/ipfs/go-log"
+
+func (cmd *startDnsSeedCmd) Run() error {
+	if cmd.Level != "" {
+		level, err := log.LevelFromString(cmd.Level)
+		if err != nil {
+			panic(err)
+		}
+
+		log.SetAllLoggers(level)
+	}
+
+	bootDNSSeed(cmd.Port)
+
+	return nil
 }

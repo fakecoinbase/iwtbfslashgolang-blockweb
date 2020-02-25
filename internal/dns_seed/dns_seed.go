@@ -10,6 +10,7 @@ package dns_seed
 import (
 	"context"
 	"fmt"
+	"github.com/ipfs/go-log"
 	"google.golang.org/grpc"
 	"math/rand"
 	"net"
@@ -17,6 +18,7 @@ import (
 
 var (
 	knownEntryServers = []string{"127.0.0.1:3000"}
+	logger            = log.Logger("dns-seed")
 )
 
 type dnsSeed struct {
@@ -24,19 +26,28 @@ type dnsSeed struct {
 }
 
 func (farmer *dnsSeed) RequestSeed(ctx context.Context, seedRequest *SeedRequest) (*SeedReply, error) {
-	return &SeedReply{Seed: knownEntryServers[rand.Intn(len(knownEntryServers))]}, nil
+	randomSeed := knownEntryServers[rand.Intn(len(knownEntryServers))]
+
+	logger.Debugf("RequestSeed -> SeedReply{Seed: %s}", randomSeed)
+
+	return &SeedReply{Seed: randomSeed}, nil
 }
 
-func bootDNSSeed(port int) {
-	fmt.Printf("Starting DNS seed on port %d\n", port)
+func bootDNSSeed(port int16) {
+	logger.Infof("Booting DNS seed on Port %d", port)
 
-	// TODO: Error handling
-	listener, _ := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
+	listener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
+	if err != nil {
+		panic(err)
+	}
+
 	grpcServer := grpc.NewServer()
 	RegisterFarmerServer(grpcServer, &dnsSeed{})
 
-	// TODO: Background, it is blocking
-	grpcServer.Serve(listener)
+	logger.Info("Server startup success..")
 
-	fmt.Printf("Starting DNS seed on port %d\n", port)
+	err = grpcServer.Serve(listener)
+	if err != nil {
+		panic(err)
+	}
 }
