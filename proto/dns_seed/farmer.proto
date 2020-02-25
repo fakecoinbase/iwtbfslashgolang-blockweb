@@ -8,7 +8,7 @@ package dns_seed;
  *
  * This project is licensed under the terms of the Apache 2.0 License.
  *
- * Generate using: `[PROJECT_ROOT]$ protoc proto/dns_seed/farmer.proto --go_out=plugins:grpc:.`
+ * Generate using: `[PROJECT_ROOT]$ protoc proto/dns_seed/farmer.proto --go_out=plugins=grpc:.`
  *
  */
 

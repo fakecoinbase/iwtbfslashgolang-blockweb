@@ -20,3 +20,7 @@ script:
 
 after_success:
   - if [[ $((go version)) == *"1.13.8"* ]]; then bash <(curl -s https://codecov.io/bash); fi
+
+cache:
+  directories:
+    - $GOPATH/pkg/mod
