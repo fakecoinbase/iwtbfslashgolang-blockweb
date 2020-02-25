@@ -7,13 +7,7 @@ package network
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-import (
-	"fmt"
-)
-
-func (node *NodeCLI) startNode(nodeID, minerAddress string) {
-	fmt.Printf("Starting node %s\n", nodeID)
-
+func (nodeCLI *NodeCLI) startNode(nodeID, minerAddress string) {
 	if len(minerAddress) > 0 {
 		// TODO: Validate address
 		//if ValidateAddress(minerAddress) {

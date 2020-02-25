@@ -28,6 +28,33 @@ var knownNodes = []string{"localhost:3000"}
 var blocksInTransit = [][]byte{}
 var mempool = make(map[string]blockchain.Transaction)
 
+func bootNode(nodeID, minerAddress string) {
+	fmt.Printf("Starting node %s\n", nodeID)
+
+	// TODO: Use DNS seed
+	nodeAddress = fmt.Sprintf("localhost:%s", nodeID)
+	miningAddress = minerAddress
+
+	// TODO: Error handling
+	listener, _ := net.Listen(protocol, nodeAddress)
+	defer listener.Close()
+
+	chain := blockchain.NewBlockchain(nodeID)
+
+	if nodeAddress != knownNodes[0] {
+		sendVersion(knownNodes[0], chain)
+	}
+
+	// TODO: Dispatch to background
+	for {
+		// TODO: Error handling
+		conn, _ := listener.Accept()
+		go handleConnection(conn, chain)
+	}
+
+	fmt.Printf("Node %s ready to accept connections\n", nodeID)
+}
+
 func handleConnection(conn net.Conn, chain *blockchain.Blockchain) {
 	// TODO: Error handling
 	request, _ := ioutil.ReadAll(conn)
@@ -113,28 +140,6 @@ func gobEncode(data interface{}) []byte {
 	encoder.Encode(data)
 
 	return buffer.Bytes()
-}
-
-func bootNode(nodeID, minerAddress string) {
-	// TODO: Use DNS seed
-	nodeAddress = fmt.Sprintf("localhost:%s", nodeID)
-	miningAddress = minerAddress
-
-	// TODO: Error handling
-	listener, _ := net.Listen(protocol, nodeAddress)
-	defer listener.Close()
-
-	chain := blockchain.NewBlockchain(nodeID)
-
-	if nodeAddress != knownNodes[0] {
-		sendVersion(knownNodes[0], chain)
-	}
-
-	for {
-		// TODO: Error handling
-		conn, _ := listener.Accept()
-		go handleConnection(conn, chain)
-	}
 }
 
 func isKnownNode(address string) bool {

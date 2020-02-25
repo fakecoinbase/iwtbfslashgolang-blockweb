@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package dns_seed;
+
+/*
+ * Copyright 2020 Information Wants To Be Free
+ * Visit: https://github.com/iwtbf
+ *
+ * This project is licensed under the terms of the Apache 2.0 License.
+ *
+ * Generate using: `[PROJECT_ROOT]$ protoc proto/dns_seed/farmer.proto --go_out=plugins:grpc:.`
+ *
+ */
+
+option go_package = "internal/dns_seed";
+
+service Farmer {
+    rpc RequestSeed (SeedRequest) returns (SeedReply) {
+    }
+}
+
+message SeedRequest {
+}
+
+message SeedReply {
+    string seed = 1;
+}

@@ -7,17 +7,36 @@ package dns_seed
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-type DNSSeed struct {
+import (
+	"context"
+	"fmt"
+	"google.golang.org/grpc"
+	"math/rand"
+	"net"
+)
+
+var (
+	knownEntryServers = []string{"127.0.0.1:3000"}
+)
+
+type dnsSeed struct {
+	UnimplementedFarmerServer
 }
 
-func (dnsSeed *DNSSeed) Run() {
+func (farmer *dnsSeed) RequestSeed(ctx context.Context, seedRequest *SeedRequest) (*SeedReply, error) {
+	return &SeedReply{Seed: knownEntryServers[rand.Intn(len(knownEntryServers))]}, nil
+}
+
+func bootDNSSeed(port int) {
+	fmt.Printf("Starting DNS seed on port %d\n", port)
+
 	// TODO: Error handling
-	//lis,_ := net.Listen("tcp", fmt.Sprintf(":%d", *port))
-	//grpcServer := grpc.NewServer()
-	//pb.RegisterRouteGuideServer(grpcServer, &routeGuideServer{})
-	//grpcServer.Serve(lis)
-}
+	listener, _ := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
+	grpcServer := grpc.NewServer()
+	RegisterFarmerServer(grpcServer, &dnsSeed{})
 
-func NewDNSSeed() *DNSSeed {
-	return &DNSSeed{}
+	// TODO: Background, it is blocking
+	grpcServer.Serve(listener)
+
+	fmt.Printf("Starting DNS seed on port %d\n", port)
 }

@@ -1,4 +1,4 @@
-package main
+package dns_seed
 
 /*
  * Copyright 2020 Information Wants To Be Free
@@ -7,8 +7,6 @@ package main
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-import dnsSeed "github.com/iwtbf/golang-blockweb/internal/dns_seed"
-
-func main() {
-	(*dnsSeed.NewDNSSeedCLI()).Run()
+func (dnsSeedCLI *DNSSeedCLI) startDNSSeed(port int) {
+	bootDNSSeed(port)
 }

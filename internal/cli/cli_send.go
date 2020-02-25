@@ -32,8 +32,7 @@ func (cli *CLI) send(from, to string, amount int, nodeID string) {
 
 	// TODO: Implement mining
 	//if mineNow {
-	coinbaseTransaction := blockchain.NewCoinbaseTransaction([]byte(from))
-	transactions := []*blockchain.Transaction{coinbaseTransaction, transaction}
+	transactions := []*blockchain.Transaction{transaction}
 
 	newBlock := chain.MineBlock(transactions)
 	unspentTransactionOutputSet.Update(newBlock)

@@ -17,11 +17,11 @@ import (
 // TODO: Use a good github package
 var (
 	usage = `Usage:
-	startnode -miner ADDRESS - Start a node named according to environment variable NODE_ID -miner enables mining`
+	start -miner ADDRESS - Start a node named according to environment variable NODE_ID -miner enables mining`
 
-	startNodeCmd = flag.NewFlagSet("startnode", flag.ExitOnError)
+	startCmd = flag.NewFlagSet("start", flag.ExitOnError)
 
-	startNodeMiner = startNodeCmd.String("miner", "", "Enable mining mode and send reward to ADDRESS")
+	startMiner = startCmd.String("miner", "", "Enable mining mode and send reward to ADDRESS")
 )
 
 type NodeCLI struct {
@@ -41,8 +41,8 @@ func (nodeCLI *NodeCLI) printUsage() {
 
 func (nodeCLI *NodeCLI) parseArguments() {
 	switch os.Args[1] {
-	case "startnode":
-		err := startNodeCmd.Parse(os.Args[2:])
+	case "start":
+		err := startCmd.Parse(os.Args[2:])
 		if err != nil {
 			log.Panic(err)
 		}
@@ -53,8 +53,8 @@ func (nodeCLI *NodeCLI) parseArguments() {
 }
 
 func (nodeCLI *NodeCLI) executeCommand(nodeID string) {
-	if startNodeCmd.Parsed() {
-		nodeCLI.startNode(nodeID, *startNodeMiner)
+	if startCmd.Parsed() {
+		nodeCLI.startNode(nodeID, *startMiner)
 	}
 }
 
@@ -63,7 +63,7 @@ func (nodeCLI *NodeCLI) Run() {
 
 	nodeID := os.Getenv("NODE_ID")
 	if nodeID == "" {
-		fmt.Printf("NODE_ID env var is not set!")
+		fmt.Println("NODE_ID env var is not set!")
 		os.Exit(1)
 	}
 

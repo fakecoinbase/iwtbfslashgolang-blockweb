@@ -138,6 +138,7 @@ func (unspentTransactionOutputSet UnspentTransactionOutputSet) Update(block *Blo
 	})
 }
 
+// TODO: Using this method should be avoided where possible
 func (unspentTransactionOutputSet UnspentTransactionOutputSet) Reindex() {
 	db := unspentTransactionOutputSet.Blockchain.db
 	chainstateBucketName := []byte(persistence.ChainstateBucket)
