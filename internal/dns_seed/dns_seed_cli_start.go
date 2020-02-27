@@ -9,6 +9,11 @@ package dns_seed
 
 import "github.com/ipfs/go-log"
 
+type startDnsSeedCmd struct {
+	Port  int16  `help:"The servers listening Port." default:"10000"`
+	Level string `help:"One of github.com/ipfs/go-log#LogLevel." default:"INFO"`
+}
+
 func (cmd *startDnsSeedCmd) Run() error {
 	if cmd.Level != "" {
 		level, err := log.LevelFromString(cmd.Level)

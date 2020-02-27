@@ -1,4 +1,4 @@
-package dns_seed
+package keygen
 
 /*
  * Copyright 2020 Information Wants To Be Free
@@ -12,7 +12,7 @@ import (
 )
 
 var dnsSeedCli struct {
-	Start startDnsSeedCmd `cmd help:"Start a DNS seed server."`
+	Gen genCmd `cmd help:"Generate a new ECDSA key pair."`
 }
 
 func Run() {
