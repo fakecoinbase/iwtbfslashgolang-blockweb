@@ -38,8 +38,8 @@ func (wallet Wallet) GetAddress() []byte {
 	return []byte(base58.Encode(fullPayload))
 }
 
-func HashPublicKey(pubKey []byte) []byte {
-	publicSHA256 := sha256.Sum256(pubKey)
+func HashPublicKey(publicKey []byte) []byte {
+	publicSHA256 := sha256.Sum256(publicKey)
 
 	RIPEMD160Hasher := ripemd160.New()
 	// TODO: Error handling

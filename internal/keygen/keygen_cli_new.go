@@ -7,10 +7,10 @@ package keygen
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-type genCmd struct {
+type newCmd struct {
 }
 
-func (cmd *genCmd) Run() error {
+func (cmd *newCmd) Run() error {
 	newKeyPair()
 
 	return nil

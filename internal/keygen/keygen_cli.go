@@ -12,7 +12,7 @@ import (
 )
 
 var dnsSeedCli struct {
-	Gen genCmd `cmd help:"Generate a new ECDSA key pair."`
+	Gen newCmd `cmd help:"Generate a new ECDSA key pair."`
 }
 
 func Run() {
