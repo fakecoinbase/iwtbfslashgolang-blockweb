@@ -12,7 +12,7 @@ import (
 )
 
 var dnsSeedCli struct {
-	Start startDnsSeedCmd `cmd help:"Start a DNS seed server."`
+	Start startDnsSeedCmd `cmd optional help:"Start a DNS seed server."`
 }
 
 func Run() {

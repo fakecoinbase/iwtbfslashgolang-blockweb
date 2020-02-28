@@ -8,10 +8,12 @@ package keygen
  */
 
 type newCmd struct {
+	Out   string `arg help:"The path to the output file."`
+	Print bool   `flag help:"Print the *private key* to System.Out as well."`
 }
 
 func (cmd *newCmd) Run() error {
-	newKeyPair()
+	newKeyPair(cmd.Out, cmd.Print)
 
 	return nil
 }
