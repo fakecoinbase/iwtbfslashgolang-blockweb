@@ -22,7 +22,8 @@ By continuing, you confirm that you have understood the above points (y / N):`
 )
 
 var dnsSeedCli struct {
-	Gen newCmd `cmd optional help:"Generate a new ECDSA key pair."`
+	Gen  newCmd  `cmd optional help:"Generate a new ECDSA key pair."`
+	Read readCmd `cmd optional help:"Validate an existing ECDSA private key."`
 }
 
 func Run() {
