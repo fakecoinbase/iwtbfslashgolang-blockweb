@@ -7,7 +7,10 @@ package dns_seed
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-import "github.com/ipfs/go-log"
+import (
+	"github.com/ipfs/go-log"
+	"github.com/whyrusleeping/go-logging"
+)
 
 type startDnsSeedCmd struct {
 	Port  int16  `flag optional help:"The servers listening Port." default:"10000"`
@@ -16,11 +19,7 @@ type startDnsSeedCmd struct {
 
 func (cmd *startDnsSeedCmd) Run() error {
 	if cmd.Level != "" {
-		level, err := log.LevelFromString(cmd.Level)
-		if err != nil {
-			panic(err)
-		}
-
+		level := logging.GetLevel(cmd.Level)
 		log.SetAllLoggers(level)
 	}
 

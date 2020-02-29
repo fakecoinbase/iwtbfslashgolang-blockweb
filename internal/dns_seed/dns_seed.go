@@ -46,8 +46,9 @@ func bootDNSSeed(port int16) {
 
 	logger.Info("Server startup success..")
 
-	err = grpcServer.Serve(listener)
-	if err != nil {
+	if err = grpcServer.Serve(listener); err != nil {
 		panic(err)
 	}
+
+	logger.Info("shutdown..")
 }

@@ -64,10 +64,9 @@ func createKeyPair(path string, print bool) {
 
 	pemEncoded := pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: x509Encoded})
 
-	println("Writing file..")
+	fmt.Println("Writing file..")
 
-	err = ioutil.WriteFile(path, pemEncoded, os.ModeExclusive)
-	if err != nil {
+	if err = ioutil.WriteFile(path, pemEncoded, os.ModeExclusive); err != nil {
 		panic(err)
 	}
 
@@ -78,7 +77,7 @@ func createKeyPair(path string, print bool) {
 	blockchainAddress := newKeyPair.publicBlockchainAddress()
 	fmt.Printf("\nYour public Address:\n%s\n", blockchainAddress)
 
-	println("\nDone.")
+	fmt.Println("\nDone.")
 }
 
 func (new *newCmd) Run() error {

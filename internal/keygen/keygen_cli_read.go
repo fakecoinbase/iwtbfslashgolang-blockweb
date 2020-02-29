@@ -34,7 +34,7 @@ func readKeyPair(path string) {
 
 	for block, rest := pem.Decode(privateKey); rest != nil; block, rest = pem.Decode(rest) {
 		if block == nil {
-			println("\nNo more blocks found in file!")
+			fmt.Println("\nNo more blocks found in file!")
 			os.Exit(0)
 		}
 

@@ -17,7 +17,7 @@ func acceptedDisclaimer(answer string) bool {
 }
 
 func acceptDisclaimer(disclaimer, retry string) bool {
-	println(disclaimer)
+	fmt.Println(disclaimer)
 
 	reader := bufio.NewReader(os.Stdin)
 	for answer, err := reader.ReadString('\n'); err != nil || answer == "\n" || !acceptedDisclaimer(answer); answer, err = reader.ReadString('\n') {
@@ -29,7 +29,7 @@ func acceptDisclaimer(disclaimer, retry string) bool {
 			return false
 		}
 
-		println(retry)
+		fmt.Println(retry)
 	}
 
 	return true

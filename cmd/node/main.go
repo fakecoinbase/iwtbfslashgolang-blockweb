@@ -7,8 +7,8 @@ package main
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-import "github.com/iwtbf/golang-blockweb/internal/blockchain/network"
+import "github.com/iwtbf/golang-blockweb/internal/node"
 
 func main() {
-	(*network.NewNodeCLI()).Run()
+	node.Run()
 }
