@@ -19,7 +19,11 @@ type startDnsSeedCmd struct {
 
 func (cmd *startDnsSeedCmd) Run() error {
 	if cmd.Level != "" {
-		level := logging.GetLevel(cmd.Level)
+		level, err := logging.LogLevel(cmd.Level)
+		if err != nil {
+			level = logging.INFO
+		}
+
 		log.SetAllLoggers(level)
 	}
 

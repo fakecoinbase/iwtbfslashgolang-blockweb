@@ -14,10 +14,13 @@ import (
 	"google.golang.org/grpc"
 	"math/rand"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 var (
-	knownEntryServers = []string{"127.0.0.1:3000"}
+	knownEntryServers = []string{"/ip4/127.0.0.1/tcp/2000"}
 	logger            = log.Logger("dns-seed")
 )
 
@@ -33,6 +36,14 @@ func (farmer *dnsSeed) RequestSeed(ctx context.Context, seedRequest *SeedRequest
 	return &SeedReply{Seed: randomSeed}, nil
 }
 
+func startListening(listener net.Listener, grpcServer *grpc.Server) {
+	logger.Info("Server startup success..")
+
+	if err := grpcServer.Serve(listener); err != nil {
+		panic(err)
+	}
+}
+
 func bootDNSSeed(port int16) {
 	logger.Infof("Booting DNS seed on Port %d", port)
 
@@ -44,11 +55,10 @@ func bootDNSSeed(port int16) {
 	grpcServer := grpc.NewServer()
 	RegisterFarmerServer(grpcServer, &dnsSeed{})
 
-	logger.Info("Server startup success..")
+	go startListening(listener, grpcServer)
 
-	if err = grpcServer.Serve(listener); err != nil {
-		panic(err)
-	}
-
-	logger.Info("shutdown..")
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+	<-ch
+	logger.Info("Received signal, shutting down...")
 }
