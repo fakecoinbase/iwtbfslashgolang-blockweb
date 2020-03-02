@@ -18,8 +18,17 @@ import (
 	"os"
 )
 
+const (
+	disclaimer = `DISCLAIMER:
+This program * can * be used to generate key pairs for 'golang-blockweb'.
+It is open source software, but there is no liability of the contributors or guarantee for the security of the generated keys. Please report any problems or vulnerabilities at https://github.com/iwtbf/golang-blockweb/issues/new.
+You could use any other key tool with elliptic P256 curve cryptography (ECDSA) + x509 + PEM. Use the command 'read' to verify the generated key.
+By continuing, you confirm that you have understood the above points (y / N):`
+	retry = `Sorry, I didn't understand this. Please try again (y / N):`
+)
+
 type newCmd struct {
-	Out   string `arg help:"The path to the output file."`
+	Out   string `arg help:"Path to the output file."`
 	Print bool   `flag help:"Print the *private key* to System.Out as well."`
 }
 
@@ -55,7 +64,7 @@ func createKeyPair(path string, print bool) {
 
 	publicKey := append(privateKey.PublicKey.X.Bytes(), privateKey.PublicKey.Y.Bytes()...)
 
-	newKeyPair := keyPair{privateKey: *privateKey, publicKey: publicKey}
+	newKeyPair := KeyPair{PrivateKey: *privateKey, publicKey: publicKey}
 
 	x509Encoded, err := x509.MarshalECPrivateKey(privateKey)
 	if err != nil {
@@ -81,6 +90,10 @@ func createKeyPair(path string, print bool) {
 }
 
 func (new *newCmd) Run() error {
+	if !acceptDisclaimer(disclaimer, retry) {
+		os.Exit(0)
+	}
+
 	validateWriteableFilePath(new.Out)
 	createKeyPair(new.Out, new.Print)
 

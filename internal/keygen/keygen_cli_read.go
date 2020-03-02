@@ -1,11 +1,7 @@
 package keygen
 
 import (
-	"crypto/x509"
-	"encoding/pem"
 	"fmt"
-	"io/ioutil"
-	"os"
 )
 
 /*
@@ -16,45 +12,28 @@ import (
  */
 
 type readCmd struct {
-	File string `arg help:"The path to the input file."`
+	File string `arg type:"existingfile" help:"Path to the input file."`
 }
 
-func validateReadableFile(path string) {
-	_, err := os.Stat(path)
-	if err != nil {
-		panic("File does not exist!")
-	}
-}
+func readAndPrintKeyPairs(path string) {
+	fmt.Println("\nReading key pairs from file..")
 
-func readKeyPair(path string) {
-	privateKey, err := ioutil.ReadFile(path)
-	if err != nil {
-		panic(err)
+	keyPairs := LoadKeyPairsFromExistingFile(path)
+
+	if len(keyPairs) == 0 {
+		fmt.Println("No ECDSA private keys found in file.")
+		return
 	}
 
-	for block, rest := pem.Decode(privateKey); rest != nil; block, rest = pem.Decode(rest) {
-		if block == nil {
-			fmt.Println("\nNo more blocks found in file!")
-			os.Exit(0)
-		}
+	fmt.Printf("Found %d key pair(s). Public addresses:\n", len(keyPairs))
 
-		x509Encoded := block.Bytes
-		privateKey, err := x509.ParseECPrivateKey(x509Encoded)
-		if err != nil {
-			panic(err)
-		}
-
-		publicKey := append(privateKey.PublicKey.X.Bytes(), privateKey.PublicKey.Y.Bytes()...)
-		readKeyPair := keyPair{privateKey: *privateKey, publicKey: publicKey}
-
-		blockchainAddress := readKeyPair.publicBlockchainAddress()
-		fmt.Printf("\nPublic Address:\n%s\n", blockchainAddress)
+	for _, keyPair := range keyPairs {
+		fmt.Printf("\t- %s\n", keyPair.publicBlockchainAddress())
 	}
 }
 
 func (read *readCmd) Run() error {
-	validateReadableFile(read.File)
-	readKeyPair(read.File)
+	readAndPrintKeyPairs(read.File)
 
 	return nil
 }

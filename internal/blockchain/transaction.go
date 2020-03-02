@@ -19,7 +19,7 @@ import (
 	"math/big"
 )
 
-const coinbaseTransactionAddress = "15SvL94t2v6UtBL1EFsPQnn2aET6cmASbz"
+const coinbaseTransactionAddress = "1LvLm5G4aJcyKMHGStRDVDNzt97TNjM4Vu"
 
 type Transaction struct {
 	ID                 []byte

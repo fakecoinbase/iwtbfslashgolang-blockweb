@@ -45,7 +45,7 @@ func startListening(listener net.Listener, grpcServer *grpc.Server) {
 }
 
 func bootDNSSeed(port int16) {
-	logger.Infof("Booting DNS seed on Port %d", port)
+	logger.Infof("Booting DNS seed on port %d..", port)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
 	if err != nil {
@@ -56,6 +56,8 @@ func bootDNSSeed(port int16) {
 	RegisterFarmerServer(grpcServer, &dnsSeed{})
 
 	go startListening(listener, grpcServer)
+
+	logger.Info("Done.")
 
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)

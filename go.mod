@@ -9,6 +9,7 @@ require (
 	github.com/golang/protobuf v1.3.4
 	github.com/ipfs/go-log v0.0.1
 	github.com/libp2p/go-libp2p v0.5.2
+	github.com/libp2p/go-libp2p-core v0.3.0
 	github.com/whyrusleeping/go-logging v0.0.1
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect

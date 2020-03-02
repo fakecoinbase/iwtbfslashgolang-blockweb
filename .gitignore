@@ -42,3 +42,6 @@ cmake-build-*/
 # Blockchain files
 golang_blockweb_*.db
 wallet_*.dat
+
+# Key files
+*.pem

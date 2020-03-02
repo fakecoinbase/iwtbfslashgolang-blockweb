@@ -10,21 +10,25 @@ package keygen
 import (
 	"crypto/ecdsa"
 	"crypto/sha256"
+	"crypto/x509"
+	"encoding/pem"
 	"github.com/btcsuite/btcutil/base58"
 	"golang.org/x/crypto/ripemd160"
+	"io/ioutil"
+	"os"
 )
 
 const (
 	version               = byte(0x00)
-	AddressChecksumLength = 4
+	addressChecksumLength = 4
 )
 
-type keyPair struct {
-	privateKey ecdsa.PrivateKey
+type KeyPair struct {
+	PrivateKey ecdsa.PrivateKey
 	publicKey  []byte
 }
 
-func (keyPair *keyPair) hashPublicKey() []byte {
+func (keyPair *KeyPair) hashPublicKey() []byte {
 	publicSHA256 := sha256.Sum256(keyPair.publicKey)
 
 	RIPEMD160Hasher := ripemd160.New()
@@ -37,7 +41,7 @@ func (keyPair *keyPair) hashPublicKey() []byte {
 	return RIPEMD160Hasher.Sum(nil)
 }
 
-func (keyPair *keyPair) publicBlockchainAddress() string {
+func (keyPair *KeyPair) publicBlockchainAddress() string {
 	versionedPayload := append([]byte{version}, keyPair.hashPublicKey()...)
 	checksum := checksum(versionedPayload)
 
@@ -48,5 +52,38 @@ func checksum(versionedPublicKey []byte) []byte {
 	firstSHA := sha256.Sum256(versionedPublicKey)
 	secondSHA := sha256.Sum256(firstSHA[:])
 
-	return secondSHA[:AddressChecksumLength]
+	return secondSHA[:addressChecksumLength]
+}
+
+func validateReadableFile(path string) {
+	_, err := os.Stat(path)
+	if err != nil {
+		panic("File does not exist!")
+	}
+}
+
+func LoadKeyPairsFromExistingFile(path string) []KeyPair {
+	validateReadableFile(path)
+
+	var keyPairs []KeyPair
+
+	privateKeys, err := ioutil.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+
+	for block, rest := pem.Decode(privateKeys); block != nil && rest != nil; block, rest = pem.Decode(rest) {
+		x509Encoded := block.Bytes
+		privateKey, err := x509.ParseECPrivateKey(x509Encoded)
+		if err != nil {
+			panic(err)
+		}
+
+		publicKey := append(privateKey.PublicKey.X.Bytes(), privateKey.PublicKey.Y.Bytes()...)
+		readKeyPair := KeyPair{PrivateKey: *privateKey, publicKey: publicKey}
+
+		keyPairs = append(keyPairs, readKeyPair)
+	}
+
+	return keyPairs
 }

@@ -13,8 +13,8 @@ import (
 )
 
 type startDnsSeedCmd struct {
-	Port  int16  `flag optional help:"The servers listening Port." default:"10000"`
-	Level string `flag optional help:"One of github.com/ipfs/go-log#LogLevel." default:"INFO"`
+	Port  int16  `optional help:"The servers listening Port." default:"10000"`
+	Level string `optional help:"One of github.com/whyrusleeping/go-logging#LogLevel." default:"INFO"`
 }
 
 func (cmd *startDnsSeedCmd) Run() error {

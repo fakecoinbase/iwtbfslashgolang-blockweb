@@ -9,6 +9,7 @@ package keygen
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 )
 

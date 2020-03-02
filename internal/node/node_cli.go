@@ -1,4 +1,4 @@
-package keygen
+package node
 
 /*
  * Copyright 2020 Information Wants To Be Free
@@ -11,13 +11,12 @@ import (
 	"github.com/alecthomas/kong"
 )
 
-var dnsSeedCli struct {
-	Gen  newCmd  `cmd optional help:"Generate a new ECDSA key pair."`
-	Read readCmd `cmd optional help:"Validate an existing ECDSA private key."`
+var nodeCli struct {
+	Start startNodeCmd `cmd optional help:"Start a DNS seed server."`
 }
 
 func Run() {
-	context := kong.Parse(&dnsSeedCli)
+	context := kong.Parse(&nodeCli)
 
 	err := context.Run()
 	context.FatalIfErrorf(err)
