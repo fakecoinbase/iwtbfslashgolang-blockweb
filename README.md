@@ -35,10 +35,16 @@ shame to be transparent. Everything belongs to everyone. Sharing is caring.
 
 *Information wants to be free.*
 
-# Hat Tip
+# Hat Tips
 
-Hat tip up to commit [047ad1627abe63410a42c54e4f2901c381000933](https://github.com/iwtbf/golang-blockweb/commit/047ad1627abe63410a42c54e4f2901c381000933)
-goes to [@Jeiwan](https://github.com/jeiwan) and his outstanding article ["A blockchain implementation in Go"](https://jeiwan.net/posts/building-blockchain-in-go-part-1/).
+* Hat tip up to commit [047ad1627abe63410a42c54e4f2901c381000933](https://github.com/iwtbf/golang-blockweb/commit/047ad1627abe63410a42c54e4f2901c381000933)
+goes to [@Jeiwan](https://github.com/jeiwan) and his outstanding article ["A blockchain implementation in Go"](https://jeiwan.net/posts/building-blockchain-in-go-part-1/)
+.
+
+* Hat tip to [@paralin](https://github.com/paralin) for the [`pkg/libp2p-grpc`](https://github.com/iwtbf/golang-blockweb/blob/master/pkg/libp2p-grpc)
+connector based on [github.com/paralin/go-libp2p-grpc](https://github.com/paralin/go-libp2p-grpc)
+and implemented in commit [aeef41cdd4b44f181852dbe226464c1cae8504aa](https://github.com/iwtbf/golang-blockweb/commit/aeef41cdd4b44f181852dbe226464c1cae8504aa)
+.
 
 # License
 
