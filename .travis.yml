@@ -16,10 +16,11 @@ script:
   - go test -race -coverprofile=coverage.txt ./...
   - go build cmd/cli/main.go
   - go build cmd/dns_seed/main.go
+  - go build cmd/keygen/main.go
   - go build cmd/node/main.go
 
 after_success:
-  - if [[ $((go version)) == *"1.13.8"* ]]; then bash <(curl -s https://codecov.io/bash); fi
+  - if [[ $((go version)) == *"1.13"* ]]; then bash <(curl -s https://codecov.io/bash); fi
 
 cache:
   directories:

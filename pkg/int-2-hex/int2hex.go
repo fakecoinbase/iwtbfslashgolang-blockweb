@@ -1,4 +1,4 @@
-package Int2Hex
+package int_2_hex
 
 /*
  * Copyright 2020 Information Wants To Be Free

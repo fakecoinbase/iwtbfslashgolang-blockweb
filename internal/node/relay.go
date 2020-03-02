@@ -12,8 +12,10 @@ import (
 	"fmt"
 	"github.com/ipfs/go-log"
 	"github.com/iwtbf/golang-blockweb/internal/keygen"
+	libp2pGrpc "github.com/iwtbf/golang-blockweb/pkg/libp2p-grpc"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p-core/peer"
 	peerstore "github.com/libp2p/go-libp2p-core/peer"
 	"os"
 	"os/signal"
@@ -21,11 +23,15 @@ import (
 )
 
 var (
-	logger = log.Logger("node")
+	logger = log.Logger("relay")
 )
 
+type relay struct {
+	PeerID peer.ID
+}
+
 func bootRelay(port int16, keyPair keygen.KeyPair) {
-	logger.Infof("Booting full node (relay) on port %d..", port)
+	logger.Infof("Booting full host (relay) on port %d..", port)
 
 	ctx := context.Background()
 
@@ -34,7 +40,7 @@ func bootRelay(port int16, keyPair keygen.KeyPair) {
 		panic(err)
 	}
 
-	node, err := libp2p.New(
+	host, err := libp2p.New(
 		ctx,
 		libp2p.Identity(ecdsaPrivateKey),
 		libp2p.ListenAddrStrings(fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", port)),
@@ -43,12 +49,15 @@ func bootRelay(port int16, keyPair keygen.KeyPair) {
 		panic(err)
 	}
 
-	peerInfo := peerstore.AddrInfo{ID: node.ID(), Addrs: node.Addrs(),}
+	peerInfo := peerstore.AddrInfo{ID: host.ID(), Addrs: host.Addrs()}
 	addresses, err := peerstore.AddrInfoToP2pAddrs(&peerInfo)
 	if err != nil {
 		panic(err)
 	}
 	logger.Debugf("Node address: %v", addresses[0])
+
+	grpcProto := libp2pGrpc.NewGRPCProtocol(ctx, host)
+	RegisterRelayServer(grpcProto.GetGRPCServer(), &relay{PeerID: host.ID()})
 	logger.Info("Done.")
 
 	ch := make(chan os.Signal, 1)
@@ -56,7 +65,7 @@ func bootRelay(port int16, keyPair keygen.KeyPair) {
 	<-ch
 	logger.Info("Received signal, shutting down...")
 
-	if err := node.Close(); err != nil {
+	if err := host.Close(); err != nil {
 		panic(err)
 	}
 }

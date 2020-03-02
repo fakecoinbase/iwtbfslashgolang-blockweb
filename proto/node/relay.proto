@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package dns_seed;
+
+/*
+ * Copyright 2020 Information Wants To Be Free
+ * Visit: https://github.com/iwtbf
+ *
+ * This project is licensed under the terms of the Apache 2.0 License.
+ *
+ * Generate using: `[PROJECT_ROOT]$ protoc proto/node/relay.proto --go_out=plugins=grpc:.`
+ *
+ */
+
+option go_package = "internal/node";
+
+service Relay {
+    rpc ExchangeVersion (Version) returns (Version) {
+    }
+}
+
+message Version {
+    int32 version = 1;
+    uint64 bestHeight = 2;
+    string addressFrom = 3;
+}
