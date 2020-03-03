@@ -17,7 +17,6 @@ import (
 // TODO: Use a good github package
 var (
 	usage = `Usage:
-	createblockchain -address ADDRESS - Create a blockchain and send genesis block reward to ADDRESS
 	createwallet - Generates a new key-pair and saves it into the wallet file
 	getbalance -address ADDRESS - Get balance of ADDRESS
 	listaddresses - Lists all addresses from the wallet file

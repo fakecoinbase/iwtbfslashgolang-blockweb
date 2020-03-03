@@ -13,6 +13,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/protocol"
 	"google.golang.org/grpc"
+	"net"
 )
 
 const Protocol protocol.ID = "/grpc/1.0.0"
@@ -48,6 +49,12 @@ func NewGRPCProtocol(ctx context.Context, host host.Host) *GRPCProtocol {
 		streamCh:   make(chan network.Stream),
 	}
 	host.SetStreamHandler(Protocol, grpcProtocol.HandleStream)
-	go grpcServer.Serve(newGrpcListener(grpcProtocol))
+	go startListening(grpcServer, newGrpcListener(grpcProtocol))
 	return grpcProtocol
+}
+
+func startListening(grpcServer *grpc.Server, listener net.Listener) {
+	if err := grpcServer.Serve(listener); err != nil {
+		panic(err)
+	}
 }

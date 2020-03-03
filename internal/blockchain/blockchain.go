@@ -20,8 +20,9 @@ import (
 )
 
 const (
-	dbFile              = "golang_blockweb_%s.db"
-	genesisCoinbaseData = "she isn't human; she is art, with a heart."
+	dbFile                     = "golang_blockweb_%s.db"
+	coinbaseData               = "she isn't human; she is art, with a heart."
+	coinbaseTransactionAddress = "1LvLm5G4aJcyKMHGStRDVDNzt97TNjM4Vu"
 )
 
 type Blockchain struct {

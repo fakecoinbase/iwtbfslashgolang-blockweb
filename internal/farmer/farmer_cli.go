@@ -1,4 +1,4 @@
-package dns_seed
+package farmer
 
 /*
  * Copyright 2020 Information Wants To Be Free
@@ -11,12 +11,12 @@ import (
 	"github.com/alecthomas/kong"
 )
 
-var dnsSeedCli struct {
-	Start startDnsSeedCmd `cmd optional help:"Start a DNS seed server."`
+var farmerCli struct {
+	Start startFarmerCmd `cmd optional help:"Start a farmer server."`
 }
 
 func Run() {
-	context := kong.Parse(&dnsSeedCli)
+	context := kong.Parse(&farmerCli)
 
 	err := context.Run()
 	context.FatalIfErrorf(err)

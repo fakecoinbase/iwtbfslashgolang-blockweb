@@ -10,7 +10,7 @@ package node
 import "context"
 
 // TODO: Really exchange (blockchain-)version
-func (relay *relay) ExchangeVersion(context.Context, *Version) (*Version, error) {
+func (relay *node) ExchangeVersion(context.Context, *Version) (*Version, error) {
 	return &Version{
 		Version:     0,
 		BestHeight:  0,

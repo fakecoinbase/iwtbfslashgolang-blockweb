@@ -19,8 +19,6 @@ import (
 	"math/big"
 )
 
-const coinbaseTransactionAddress = "1LvLm5G4aJcyKMHGStRDVDNzt97TNjM4Vu"
-
 type Transaction struct {
 	ID                 []byte
 	TransactionInputs  []TransactionInput
@@ -119,7 +117,7 @@ func (transaction *Transaction) Verify(previousTransactions map[string]Transacti
 }
 
 func NewCoinbaseTransaction() *Transaction {
-	transactionInput := TransactionInput{TransactionID: []byte{}, transactionOutputID: -1, Signature: nil, PublicKey: []byte(genesisCoinbaseData)}
+	transactionInput := TransactionInput{TransactionID: []byte{}, transactionOutputID: -1, Signature: nil, PublicKey: []byte(coinbaseData)}
 	transactionOutput := NewTransactionOutput(50000, []byte(coinbaseTransactionAddress))
 	transaction := Transaction{ID: nil, TransactionInputs: []TransactionInput{transactionInput}, TransactionOutputs: []TransactionOutput{*transactionOutput}}
 	transaction.ID = transaction.hash()

@@ -8,56 +8,36 @@ package node
  */
 
 import (
-	"context"
-	"fmt"
 	"github.com/ipfs/go-log"
+	farmerClient "github.com/iwtbf/golang-blockweb/internal/farmer/client"
 	"github.com/iwtbf/golang-blockweb/internal/keygen"
-	libp2pGrpc "github.com/iwtbf/golang-blockweb/pkg/libp2p-grpc"
-	"github.com/libp2p/go-libp2p"
-	"github.com/libp2p/go-libp2p-core/crypto"
-	"github.com/libp2p/go-libp2p-core/peer"
-	peerstore "github.com/libp2p/go-libp2p-core/peer"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
 var (
-	logger = log.Logger("relay")
+	logger = log.Logger("node")
 )
 
 type relay struct {
-	PeerID peer.ID
+	*node
 }
 
 func bootRelay(port int16, keyPair keygen.KeyPair) {
-	logger.Infof("Booting full host (relay) on port %d..", port)
+	logger.Infof("Booting relay (full node) on port %d..", port)
 
-	ctx := context.Background()
+	host, hostAddress, grpcProtocol := startLibp2pGrcpHost(port, keyPair)
+	RegisterRelayServer(grpcProtocol.GetGRPCServer(), &relay{node: &node{PeerID: host.ID()}})
 
-	ecdsaPrivateKey, _, err := crypto.ECDSAKeyPairFromKey(&keyPair.PrivateKey)
-	if err != nil {
-		panic(err)
+	relayAddress, relayPublicKeyHash := farmerClient.RequestRandomCoreRelayInformation(hostAddress.String())
+
+	if relayAddress != hostAddress.String() {
+		connectToCoreRelay(relayAddress, relayPublicKeyHash)
+	} else {
+		logger.Warning("I am the genesis relay - I won't bow to anyone!")
 	}
 
-	host, err := libp2p.New(
-		ctx,
-		libp2p.Identity(ecdsaPrivateKey),
-		libp2p.ListenAddrStrings(fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", port)),
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	peerInfo := peerstore.AddrInfo{ID: host.ID(), Addrs: host.Addrs()}
-	addresses, err := peerstore.AddrInfoToP2pAddrs(&peerInfo)
-	if err != nil {
-		panic(err)
-	}
-	logger.Debugf("Node address: %v", addresses[0])
-
-	grpcProto := libp2pGrpc.NewGRPCProtocol(ctx, host)
-	RegisterRelayServer(grpcProto.GetGRPCServer(), &relay{PeerID: host.ID()})
 	logger.Info("Done.")
 
 	ch := make(chan os.Signal, 1)

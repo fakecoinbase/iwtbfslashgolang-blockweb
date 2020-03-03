@@ -8,11 +8,11 @@ package dns_seed;
  *
  * This project is licensed under the terms of the Apache 2.0 License.
  *
- * Generate using: `[PROJECT_ROOT]$ protoc proto/dns_seed/farmer.proto --go_out=plugins=grpc:.`
+ * Generate using: `[PROJECT_ROOT]$ protoc proto/farmer/farmer.proto --go_out=plugins=grpc:.`
  *
  */
 
-option go_package = "internal/dns_seed";
+option go_package = "internal/farmer";
 
 service Farmer {
     rpc RequestSeed (SeedRequest) returns (SeedReply) {
@@ -20,8 +20,10 @@ service Farmer {
 }
 
 message SeedRequest {
+    string hostAddress = 1;
 }
 
 message SeedReply {
-    string seed = 1;
+    string address = 1;
+    bytes publicKeyHash = 2;
 }

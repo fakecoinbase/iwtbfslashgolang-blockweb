@@ -1,4 +1,4 @@
-package dns_seed
+package farmer
 
 /*
  * Copyright 2020 Information Wants To Be Free
@@ -12,12 +12,12 @@ import (
 	"github.com/whyrusleeping/go-logging"
 )
 
-type startDnsSeedCmd struct {
+type startFarmerCmd struct {
 	Port  int16  `optional help:"The servers listening Port." default:"10000"`
 	Level string `optional help:"One of github.com/whyrusleeping/go-logging#LogLevel." default:"INFO"`
 }
 
-func (cmd *startDnsSeedCmd) Run() error {
+func (cmd *startFarmerCmd) Run() error {
 	if cmd.Level != "" {
 		level, err := logging.LogLevel(cmd.Level)
 		if err != nil {
@@ -27,7 +27,7 @@ func (cmd *startDnsSeedCmd) Run() error {
 		log.SetAllLoggers(level)
 	}
 
-	bootDNSSeed(cmd.Port)
+	bootFarmer(cmd.Port)
 
 	return nil
 }

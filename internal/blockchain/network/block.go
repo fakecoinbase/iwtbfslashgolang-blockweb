@@ -27,12 +27,12 @@ func requestBlocks() {
 	}
 }
 
-func sendBlock(addr string, blockchainBlock *blockchain.Block) {
+func sendBlock(address string, blockchainBlock *blockchain.Block) {
 	data := block{AddressFrom: nodeAddress, Block: blockchainBlock.Serialize()}
 	payload := gobEncode(data)
 	request := append(commandToBytes(command.Block), payload...)
 
-	sendData(addr, request)
+	sendData(address, request)
 }
 
 func handleBlock(request []byte, chain *blockchain.Blockchain) {

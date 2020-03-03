@@ -7,8 +7,8 @@ package main
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-import dnsSeed "github.com/iwtbf/golang-blockweb/internal/dns_seed"
+import "github.com/iwtbf/golang-blockweb/internal/farmer"
 
 func main() {
-	dnsSeed.Run()
+	farmer.Run()
 }

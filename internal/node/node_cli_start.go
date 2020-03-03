@@ -18,7 +18,7 @@ type startNodeCmd struct {
 	KeyFile string `arg type:"existingfile" help:"Path to the ECDSA private key file."`
 	Port    int16  `optional help:"The servers listening Port." default:"2000"`
 	Level   string `optional help:"One of github.com/whyrusleeping/go-logging#LogLevel." default:"INFO"`
-	Lazy    bool   `optional help:"A 'proxy' node which does neither verify the blockchain nor act as a relay."`
+	Lazy    bool   `optional help:"A 'proxy' node which does neither verify the blockchain nor act as a node."`
 }
 
 func loadKeyPairFromCertFile(certFile string) keygen.KeyPair {
