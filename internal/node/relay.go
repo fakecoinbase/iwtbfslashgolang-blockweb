@@ -9,8 +9,7 @@ package node
 
 import (
 	"github.com/ipfs/go-log"
-	farmerClient "github.com/iwtbf/golang-blockweb/internal/farmer/client"
-	"github.com/iwtbf/golang-blockweb/internal/keygen"
+	"github.com/libp2p/go-libp2p-core/crypto"
 	"os"
 	"os/signal"
 	"syscall"
@@ -22,30 +21,39 @@ var (
 
 type relay struct {
 	*node
+	hashTable *DistributedHashTable
 }
 
-func bootRelay(port int16, keyPair keygen.KeyPair) {
+func newGrpcRelay(port int16, privKey crypto.PrivKey) *relay {
+	logger.Debug("Starting GRPC service..")
+	host, grpcProtocol := startLibp2pGrcpHost(port, privKey)
+	relay := &relay{node: &node{host: host, grpcProtocol: grpcProtocol}}
+
+	RegisterRelayServer(grpcProtocol.GetGRPCServer(), relay)
+	logger.Debug("GRPC service started.")
+
+	return relay
+}
+
+func bootRelay(port int16, privKey crypto.PrivKey) {
 	logger.Infof("Booting relay (full node) on port %d..", port)
 
-	host, hostAddress, grpcProtocol := startLibp2pGrcpHost(port, keyPair)
-	RegisterRelayServer(grpcProtocol.GetGRPCServer(), &relay{node: &node{PeerID: host.ID()}})
+	relay := newGrpcRelay(port, privKey)
+	relay.hashTable = newDistributedHashTable(relay)
+	relay.hashTable.synchronize(relay.host)
 
-	relayAddress, relayPublicKeyHash := farmerClient.RequestRandomCoreRelayInformation(hostAddress.String())
+	// TODO: Bootstrap blockchain
 
-	if relayAddress != hostAddress.String() {
-		connectToCoreRelay(relayAddress, relayPublicKeyHash)
-	} else {
-		logger.Warning("I am the genesis relay - I won't bow to anyone!")
-	}
+	relay.hashTable.announce()
 
-	logger.Info("Done.")
+	logger.Info("Boot successful. relay is ready to improve the world.")
 
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	<-ch
 	logger.Info("Received signal, shutting down...")
 
-	if err := host.Close(); err != nil {
+	if err := relay.host.Close(); err != nil {
 		panic(err)
 	}
 }

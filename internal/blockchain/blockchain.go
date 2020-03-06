@@ -31,7 +31,9 @@ type Blockchain struct {
 }
 
 func (blockchain *Blockchain) CloseDB() {
-	blockchain.db.Close()
+	if err := blockchain.db.Close(); err != nil {
+		panic(err)
+	}
 }
 
 func (blockchain *Blockchain) GetBlock(blockHash []byte) (Block, error) {
@@ -249,7 +251,7 @@ func (blockchain *Blockchain) GetBlockHashes() [][]byte {
 	return blockHashes
 }
 
-func CreateBlockchain(nodeID string) *Blockchain {
+func createBlockchain(nodeID string) *Blockchain {
 	dbFile := fmt.Sprintf(dbFile, nodeID)
 	if dbExists(dbFile) {
 		// TODO: Maybe use log.panic
@@ -262,23 +264,30 @@ func CreateBlockchain(nodeID string) *Blockchain {
 	coinbaseTransaction := NewCoinbaseTransaction()
 	genesisBlock := NewGenesisBlock(coinbaseTransaction)
 
-	// TODO: Error handling
-	db, _ := bolt.Open(dbFile, 0600, nil)
+	db, err := bolt.Open(dbFile, 0600, nil)
+	if err != nil {
+		panic(err)
+	}
 
-	// TODO: Error handling
-	db.Update(func(transaction *bolt.Tx) error {
-		// TODO: Error handling
-		bucket, _ := transaction.CreateBucket([]byte(persistence.BlocksBucket))
+	if err = db.Update(func(transaction *bolt.Tx) error {
+		bucket, err := transaction.CreateBucket([]byte(persistence.BlocksBucket))
+		if err != nil {
+			panic(err)
+		}
 
-		// TODO: Error handling
-		bucket.Put(genesisBlock.Hash, genesisBlock.Serialize())
+		if err = bucket.Put(genesisBlock.Hash, genesisBlock.Serialize()); err != nil {
+			panic(err)
+		}
 
-		// TODO: Error handling
-		bucket.Put([]byte(persistence.LastBlockFileNumber), genesisBlock.Hash)
+		if err = bucket.Put([]byte(persistence.LastBlockFileNumber), genesisBlock.Hash); err != nil {
+			panic(err)
+		}
 		tip = genesisBlock.Hash
 
 		return nil
-	})
+	}); err != nil {
+		panic(err)
+	}
 
 	return &Blockchain{tip: tip, db: db}
 }
@@ -286,20 +295,23 @@ func CreateBlockchain(nodeID string) *Blockchain {
 func NewBlockchain(nodeID string) *Blockchain {
 	dbFile := fmt.Sprintf(dbFile, nodeID)
 	if dbExists(dbFile) == false {
-		CreateBlockchain(nodeID)
+		return createBlockchain(nodeID)
 	}
 
 	var tip []byte
-	// TODO: Error handling
-	db, _ := bolt.Open(dbFile, 0600, nil)
+	db, err := bolt.Open(dbFile, 0600, nil)
+	if err != nil {
+		panic(err)
+	}
 
-	// TODO: Error handling
-	db.View(func(transaction *bolt.Tx) error {
+	if err = db.View(func(transaction *bolt.Tx) error {
 		bucket := transaction.Bucket([]byte(persistence.BlocksBucket))
 		tip = bucket.Get([]byte(persistence.LastBlockFileNumber))
 
 		return nil
-	})
+	}); err != nil {
+		panic(err)
+	}
 
 	return &Blockchain{tip: tip, db: db}
 }

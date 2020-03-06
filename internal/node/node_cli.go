@@ -12,7 +12,7 @@ import (
 )
 
 var nodeCli struct {
-	Start startNodeCmd `cmd optional help:"Start a DNS seed server."`
+	Relay relayNodeCmd `cmd optional help:"Start a blockweb relay."`
 }
 
 func Run() {

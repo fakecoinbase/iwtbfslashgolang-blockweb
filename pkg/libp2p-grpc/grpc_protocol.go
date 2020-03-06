@@ -19,7 +19,7 @@ import (
 const Protocol protocol.ID = "/grpc/1.0.0"
 
 /*
- * GRPC-transported protocol handler for libp2p hosts (github.com/libp2p/go-libp2p-core/host#Host).
+ * GRPC-transported protocol handler for libp2p hosts (github.com/libp2p/go-libp2p-core/host#host).
  */
 type GRPCProtocol struct {
 	ctx        context.Context

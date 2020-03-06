@@ -14,7 +14,6 @@ before_install:
 
 script:
   - go test -race -coverprofile=coverage.txt ./...
-  - go build cmd/cli/main.go
   - go build cmd/farmer/main.go
   - go build cmd/keygen/main.go
   - go build cmd/node/main.go

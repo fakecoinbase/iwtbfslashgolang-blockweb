@@ -15,7 +15,7 @@ import (
 func (cli *CLI) createBlockchain(nodeID string) {
 	// TODO: Validate address
 
-	chain := blockchain.CreateBlockchain(nodeID)
+	chain := blockchain.createBlockchain(nodeID)
 	defer chain.CloseDB()
 
 	unspentTransactionOutputSet := blockchain.UnspentTransactionOutputSet{Blockchain: chain}

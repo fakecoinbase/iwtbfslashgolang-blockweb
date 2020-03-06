@@ -7,7 +7,9 @@ package main
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-import "github.com/iwtbf/golang-blockweb/internal/node"
+import (
+	"github.com/iwtbf/golang-blockweb/internal/node"
+)
 
 func main() {
 	node.Run()

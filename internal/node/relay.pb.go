@@ -46,7 +46,7 @@ var _ grpc.ClientConnInterface
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// RelayClient is the client API for Relay service.
+// RelayClient is the client API for relay service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type RelayClient interface {
@@ -63,14 +63,14 @@ func NewRelayClient(cc grpc.ClientConnInterface) RelayClient {
 
 func (c *relayClient) ExchangeVersion(ctx context.Context, in *Version, opts ...grpc.CallOption) (*Version, error) {
 	out := new(Version)
-	err := c.cc.Invoke(ctx, "/farmer.Relay/ExchangeVersion", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/farmer.relay/ExchangeVersion", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// RelayServer is the server API for Relay service.
+// RelayServer is the server API for relay service.
 type RelayServer interface {
 	ExchangeVersion(context.Context, *Version) (*Version, error)
 }
@@ -97,7 +97,7 @@ func _Relay_ExchangeVersion_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/farmer.Relay/ExchangeVersion",
+		FullMethod: "/farmer.relay/ExchangeVersion",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RelayServer).ExchangeVersion(ctx, req.(*Version))
@@ -106,7 +106,7 @@ func _Relay_ExchangeVersion_Handler(srv interface{}, ctx context.Context, dec fu
 }
 
 var _Relay_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "farmer.Relay",
+	ServiceName: "farmer.relay",
 	HandlerType: (*RelayServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

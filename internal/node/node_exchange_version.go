@@ -10,7 +10,11 @@ package node
 import "context"
 
 // TODO: Really exchange (blockchain-)version
-func (relay *node) ExchangeVersion(context.Context, *Version) (*Version, error) {
+func (node *node) ExchangeVersion(context.Context, *Version) (*Version, error) {
+	if node == nil {
+		panic("node#ExchangeVersion called on nil reference!")
+	}
+
 	return &Version{
 		Version:     0,
 		BestHeight:  0,
