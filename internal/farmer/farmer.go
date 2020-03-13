@@ -47,8 +47,7 @@ func startListening(listener net.Listener, grpcServer *grpc.Server) {
 	}
 }
 
-// TODO: Add TLS
-func bootFarmer(port int16) {
+func bootFarmer(certFile, keyFile string, port int16) {
 	farmerLogger.Infof("Booting farmer on port %d..", port)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
@@ -56,9 +55,12 @@ func bootFarmer(port int16) {
 		panic(err)
 	}
 
-	// TODO: credentials.NewServerTLSFromFile()
-	credentials.NewServerTLSFromFile()
-	grpcServer := grpc.NewServer()
+	transportCredentials, err := credentials.NewServerTLSFromFile(certFile, keyFile)
+	if err != nil {
+		panic(err)
+	}
+
+	grpcServer := grpc.NewServer(grpc.Creds(transportCredentials))
 	RegisterFarmerServer(grpcServer, &farmer{})
 
 	go startListening(listener, grpcServer)

@@ -12,14 +12,16 @@ import (
 	"github.com/iwtbf/golang-blockweb/internal/keygen"
 	"github.com/libp2p/go-libp2p-core/crypto"
 	"github.com/whyrusleeping/go-logging"
+	"google.golang.org/grpc/credentials"
 	"os"
 )
 
 type relayNodeCmd struct {
-	KeyFile string `arg type:"existingfile" help:"Path to the ECDSA private key file."`
-	Port    int16  `optional help:"The servers listening Port." default:"2000"`
-	Level   string `optional help:"One of github.com/whyrusleeping/go-logging#LogLevel." default:"INFO"`
-	Lazy    bool   `optional help:"A 'proxy' node which does neither verify the blockchain nor act as a node."`
+	CertFile string `flag type:"existingfile" help:"Path to the cert file."`
+	KeyFile  string `flag type:"existingfile" help:"Path to the ECDSA private key file."`
+	Port     int16  `optional help:"The servers listening Port." default:"2000"`
+	Level    string `optional help:"One of github.com/whyrusleeping/go-logging#LogLevel." default:"INFO"`
+	Lazy     bool   `optional help:"A 'proxy' node which does neither verify the blockchain nor act as a node."`
 }
 
 func loadKeyPairFromCertFile(certFile string) crypto.PrivKey {
@@ -53,13 +55,18 @@ func (cmd *relayNodeCmd) Run() error {
 		log.SetAllLoggers(level)
 	}
 
+	transportCredentials, err := credentials.NewServerTLSFromFile(cmd.CertFile, cmd.KeyFile)
+	if err != nil {
+		panic(err)
+	}
+
 	privKey := loadKeyPairFromCertFile(cmd.KeyFile)
 
 	if cmd.Lazy {
 		logger.Error("Lazy node not implement yet!")
 		os.Exit(1)
 	} else {
-		bootRelay(cmd.Port, privKey)
+		bootRelay(cmd.Port, transportCredentials, privKey)
 	}
 
 	return nil

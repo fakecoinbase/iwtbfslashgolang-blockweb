@@ -13,6 +13,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/protocol"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"net"
 )
 
@@ -40,8 +41,8 @@ func (grpcProtocol *GRPCProtocol) HandleStream(stream network.Stream) {
 	}
 }
 
-func NewGRPCProtocol(ctx context.Context, host host.Host) *GRPCProtocol {
-	grpcServer := grpc.NewServer()
+func NewGRPCProtocol(ctx context.Context, host host.Host, transportCredentials credentials.TransportCredentials) *GRPCProtocol {
+	grpcServer := grpc.NewServer(grpc.Creds(transportCredentials))
 	grpcProtocol := &GRPCProtocol{
 		ctx:        ctx,
 		host:       host,

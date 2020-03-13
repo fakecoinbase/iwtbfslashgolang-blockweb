@@ -13,13 +13,15 @@ import (
 )
 
 type startFarmerCmd struct {
-	Port  int16  `optional help:"The servers listening Port." default:"10000"`
-	Level string `optional help:"One of github.com/whyrusleeping/go-logging#LogLevel." default:"INFO"`
+	CertFile string `flag type:"existingfile" help:"Path to the cert file."`
+	KeyFile  string `flag type:"existingfile" help:"Path to the ECDSA private key file."`
+	Port     int16  `flag optional help:"The servers listening Port." default:"10000"`
+	Level    string `flag optional help:"One of github.com/whyrusleeping/go-logging#LogLevel." default:"INFO"`
 }
 
-func (cmd *startFarmerCmd) Run() error {
-	if cmd.Level != "" {
-		level, err := logging.LogLevel(cmd.Level)
+func (startFarmer *startFarmerCmd) Run() error {
+	if startFarmer.Level != "" {
+		level, err := logging.LogLevel(startFarmer.Level)
 		if err != nil {
 			level = logging.INFO
 		}
@@ -27,7 +29,7 @@ func (cmd *startFarmerCmd) Run() error {
 		log.SetAllLoggers(level)
 	}
 
-	bootFarmer(cmd.Port)
+	bootFarmer(startFarmer.CertFile, startFarmer.KeyFile, startFarmer.Port)
 
 	return nil
 }

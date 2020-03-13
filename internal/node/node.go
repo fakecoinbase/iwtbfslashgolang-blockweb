@@ -16,6 +16,7 @@ import (
 	core "github.com/libp2p/go-libp2p-core"
 	"github.com/libp2p/go-libp2p-core/crypto"
 	libp2pHost "github.com/libp2p/go-libp2p-core/host"
+	"google.golang.org/grpc/credentials"
 )
 
 type node struct {
@@ -23,7 +24,7 @@ type node struct {
 	grpcProtocol *libp2pGrpc.GRPCProtocol
 }
 
-func startLibp2pGrcpHost(port int16, privKey crypto.PrivKey) (libp2pHost.Host, *libp2pGrpc.GRPCProtocol) {
+func startLibp2pGrcpHost(port int16, transportCredentials credentials.TransportCredentials, privKey crypto.PrivKey) (libp2pHost.Host, *libp2pGrpc.GRPCProtocol) {
 	ctx := context.Background()
 
 	host, err := libp2p.New(
@@ -37,5 +38,5 @@ func startLibp2pGrcpHost(port int16, privKey crypto.PrivKey) (libp2pHost.Host, *
 		panic(err)
 	}
 
-	return host, libp2pGrpc.NewGRPCProtocol(ctx, host)
+	return host, libp2pGrpc.NewGRPCProtocol(ctx, host, transportCredentials)
 }

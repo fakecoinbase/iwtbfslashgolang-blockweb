@@ -10,6 +10,7 @@ package node
 import (
 	"github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p-core/crypto"
+	"google.golang.org/grpc/credentials"
 	"os"
 	"os/signal"
 	"syscall"
@@ -24,9 +25,9 @@ type relay struct {
 	hashTable *DistributedHashTable
 }
 
-func newGrpcRelay(port int16, privKey crypto.PrivKey) *relay {
+func newGrpcRelay(port int16, transportCredentials credentials.TransportCredentials, privKey crypto.PrivKey) *relay {
 	logger.Debug("Starting GRPC service..")
-	host, grpcProtocol := startLibp2pGrcpHost(port, privKey)
+	host, grpcProtocol := startLibp2pGrcpHost(port, transportCredentials, privKey)
 	relay := &relay{node: &node{host: host, grpcProtocol: grpcProtocol}}
 
 	RegisterRelayServer(grpcProtocol.GetGRPCServer(), relay)
@@ -35,10 +36,10 @@ func newGrpcRelay(port int16, privKey crypto.PrivKey) *relay {
 	return relay
 }
 
-func bootRelay(port int16, privKey crypto.PrivKey) {
+func bootRelay(port int16, transportCredentials credentials.TransportCredentials, privKey crypto.PrivKey) {
 	logger.Infof("Booting relay (full node) on port %d..", port)
 
-	relay := newGrpcRelay(port, privKey)
+	relay := newGrpcRelay(port, transportCredentials, privKey)
 	defer relay.host.Close()
 
 	relay.hashTable = newDistributedHashTable(relay)
