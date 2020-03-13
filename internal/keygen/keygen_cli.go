@@ -12,8 +12,9 @@ import (
 )
 
 var dnsSeedCli struct {
-	Gen  newCmd  `cmd optional help:"Generate a new ECDSA key pair."`
-	Read readCmd `cmd optional help:"Validate an existing ECDSA private key."`
+	GenKey  genKeyCmd  `cmd optional help:"Generate a new ECDSA key pair."`
+	ReadKey readKeyCmd `cmd optional help:"Validate an existing ECDSA private key."`
+	GenCert genCertCmd `cmd optional help:"Generate a server certificate from ECDSA key file."`
 }
 
 func Run() {

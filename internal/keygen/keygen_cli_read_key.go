@@ -11,8 +11,8 @@ import (
  * This project is licensed under the terms of the Apache 2.0 License.
  */
 
-type readCmd struct {
-	File string `arg type:"existingfile" help:"Path to the input file."`
+type readKeyCmd struct {
+	File string `arg type:"existingfile" help:"Path to the input key file."`
 }
 
 func readAndPrintKeyPairs(path string) {
@@ -32,8 +32,8 @@ func readAndPrintKeyPairs(path string) {
 	}
 }
 
-func (read *readCmd) Run() error {
-	readAndPrintKeyPairs(read.File)
+func (readKey *readKeyCmd) Run() error {
+	readAndPrintKeyPairs(readKey.File)
 
 	return nil
 }

@@ -10,6 +10,7 @@ package node
 import (
 	"context"
 	discovery "github.com/libp2p/go-libp2p-discovery"
+	"google.golang.org/grpc"
 )
 
 func (relay relay) bootstrapBlockchain() {
@@ -20,6 +21,7 @@ func (relay relay) bootstrapBlockchain() {
 		panic(err)
 	}
 
+	// TODO: Detect unsynced blockchain
 	for _, peer := range peerInfos {
 		if peer.ID == relay.host.ID() {
 			continue
@@ -27,7 +29,8 @@ func (relay relay) bootstrapBlockchain() {
 
 		logger.Debugf("Trying to dial peer '%s'", peer.ID)
 
-		_, err := relay.grpcProtocol.Dial(context.Background(), peer.ID)
+		// TODO: TLS
+		_, err := relay.grpcProtocol.Dial(context.Background(), peer.ID, grpc.WithBlock())
 		if err != nil {
 			logger.Warningf("Connecting to peer '%s' failed: %v", peer.ID, err)
 			continue

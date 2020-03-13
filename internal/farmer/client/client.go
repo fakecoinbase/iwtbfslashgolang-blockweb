@@ -44,8 +44,7 @@ func requestCoreRelayFromFarmer(address, hostAddress string) (string, []byte) {
 
 	dialCtx, dialCancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer dialCancelFunc()
-	// TODO: TLS
-	clientConn, err := grpc.DialContext(dialCtx, address, grpc.WithInsecure(), grpc.WithBlock())
+	clientConn, err := grpc.DialContext(dialCtx, address, grpc.WithBlock())
 	if err != nil {
 		clientLogger.Warning(err)
 		return "", nil

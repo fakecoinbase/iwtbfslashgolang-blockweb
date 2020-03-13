@@ -58,7 +58,7 @@ func checksum(versionedPublicKey []byte) []byte {
 func validateReadableFile(path string) {
 	_, err := os.Stat(path)
 	if err != nil {
-		panic("File does not exist!")
+		panic("Key does not exist!")
 	}
 }
 

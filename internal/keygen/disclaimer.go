@@ -13,6 +13,15 @@ import (
 	"os"
 )
 
+const (
+	disclaimer = `DISCLAIMER:
+This program * can * be used to generate key pairs and certificates for 'golang-blockweb'.
+It is open source software, but there is no liability of the contributors or guarantee for the security of the generated keys. Please report any problems or vulnerabilities at https://github.com/iwtbf/golang-blockweb/issues/new.
+You could use any other key tool with elliptic P256 curve cryptography (ECDSA) + x509 + PEM. Use the command 'read-key' to verify the generated key.
+By continuing, you confirm that you have understood the above points (y / N):`
+	retry = `Sorry, I didn't understand this. Please try again (y / N):`
+)
+
 func acceptedDisclaimer(answer string) bool {
 	return answer == "y\n" || answer == "Y\n"
 }
