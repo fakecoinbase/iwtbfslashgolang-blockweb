@@ -18,12 +18,12 @@ import (
 )
 
 const (
-	coreRelayRendezvous = "core-relay-rendezvous"
-	relayRendezvous     = "relay-rendezvous"
+	relayRendezvous = "relay-rendezvous"
 )
 
 type DistributedHashTable struct {
 	*dht.IpfsDHT
+	routingDiscovery *discovery.RoutingDiscovery
 }
 
 func (distributedHashTable *DistributedHashTable) fetchHashTableFromCoreRelay(host core.Host, relayAddress string, relayPublicKeyHash []byte) {
@@ -58,18 +58,14 @@ func (distributedHashTable *DistributedHashTable) synchronize(host core.Host) {
 
 	if relayAddress != primaryHostAddress {
 		distributedHashTable.fetchHashTableFromCoreRelay(host, relayAddress, relayPublicKeyHash)
-	} else {
-		// TODO: Be the first to announce coreRelayRendezvous
-		logger.Warning("I am the genesis relay - I won't bow to anyone!")
 	}
 
 	logger.Debug("Hash table initialized.")
 }
 
 func (distributedHashTable *DistributedHashTable) announce() {
-	logger.Info("Announcing new relay..")
-	routingDiscovery := discovery.NewRoutingDiscovery(distributedHashTable)
-	discovery.Advertise(context.Background(), routingDiscovery, relayRendezvous)
+	logger.Info("Announcing myself to network..")
+	discovery.Advertise(context.Background(), distributedHashTable.routingDiscovery, relayRendezvous)
 	logger.Debug("Successfully announced.")
 }
 
@@ -79,5 +75,7 @@ func newDistributedHashTable(relay *relay) *DistributedHashTable {
 		panic(err)
 	}
 
-	return &DistributedHashTable{IpfsDHT: kademliaDHT}
+	distributedHashTable := DistributedHashTable{IpfsDHT: kademliaDHT}
+	distributedHashTable.routingDiscovery = discovery.NewRoutingDiscovery(distributedHashTable)
+	return &distributedHashTable
 }

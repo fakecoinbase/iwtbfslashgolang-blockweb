@@ -39,21 +39,23 @@ func bootRelay(port int16, privKey crypto.PrivKey) {
 	logger.Infof("Booting relay (full node) on port %d..", port)
 
 	relay := newGrpcRelay(port, privKey)
+	defer relay.host.Close()
+
 	relay.hashTable = newDistributedHashTable(relay)
+	defer relay.hashTable.Close()
+
 	relay.hashTable.synchronize(relay.host)
 
-	// TODO: Bootstrap blockchain
+	relay.bootstrapBlockchain()
 
 	relay.hashTable.announce()
 
-	logger.Info("Boot successful. relay is ready to improve the world.")
+	logger.Info("Boot successful. Relay is ready to improve the world.")
 
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	<-ch
 	logger.Info("Received signal, shutting down...")
 
-	if err := relay.host.Close(); err != nil {
-		panic(err)
-	}
+	// TODO: De-Announce from network (dht)?
 }
